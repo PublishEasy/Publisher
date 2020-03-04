@@ -4,6 +4,8 @@ FROM node:12-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache --upgrade bash
+
 COPY ["package.json", "yarn.lock", "./"]
 
 RUN yarn --frozen-lockfile
