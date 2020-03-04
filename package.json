@@ -43,14 +43,5 @@
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"
-  },
-  "browserslist": [
-    ">0.2%",
-    "current node",
-    "not dead"
-  ],
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "all"
   }
 }

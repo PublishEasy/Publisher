@@ -1,22 +1,27 @@
 version: '3.7'
 
 # The x- prefix lets docker compose ignore the key
-x-src-bind-mount: &src_bind_mount
-  type: bind
-  source: ../../../src
-  target: /app/src
-  read_only: true
-  consistency: consistent
+x-define-images-and-volumes: &define_images_and_volumes
+  depends_on:
+    - base_image_builder
+  image: publisher-base
+  volumes:
+    - type: bind
+      source: ../../../src
+      target: /app/src
+      read_only: true
+      consistency: consistent
 
 services:
-  front_end_development_server:
+  base_image_builder:
     # Name the image we build here so we can reuse it
-    image: base_image
+    image: publisher-base
     build:
       context: ../../../
-      dockerfile: ./config/deployment/local-dev/Dockerfile
-    volumes:
-      - <<: *src_bind_mount
+      dockerfile: ./config/docker/local-dev/Dockerfile
+
+  front_end_development_server:
+    <<: *define_images_and_volumes
     ports:
       - 3000:3000
     # --host 0.0.0.0 to access it from outside container we need to expose it publicly inside
@@ -29,11 +34,7 @@ services:
       --public localhost:3000
 
   back_end_development_server:
-    depends_on:
-      - front_end_development_server
-    image: base_image
-    volumes:
-      - <<: *src_bind_mount
+    <<: *define_images_and_volumes
     ports:
       - 8080:8080
     environment:

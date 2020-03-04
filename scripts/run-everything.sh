@@ -8,4 +8,4 @@ ROOT_DIRECTORY=$($DIRECTORY/helpers/get-root-directory.sh)
 
 cd $ROOT_DIRECTORY
 
-docker-compose -f config/deployment/local-dev/docker-compose.yml up --build
+docker-compose -f config/docker/local-dev/docker-compose.yml up --build

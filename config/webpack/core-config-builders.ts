@@ -5,7 +5,7 @@ import {
   absoluteFromRoot,
   HTML_TEMPLATE_PATH,
   PUBLIC_FILES_DIRECTORY,
-  WebpackConfig
+  WebpackConfig,
 } from './constants-types-paths';
 
 export function setupCoreFunctionality(config: WebpackConfig): WebpackConfig {
