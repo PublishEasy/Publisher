@@ -57,4 +57,4 @@ echo -e "${GREEN}PASSED"
 sleep 1
 
 echo ""
-echo -e "${GREEN}ALL PASSED!"
+echo -e "${GREEN}ALL PASSED!${NC}"
