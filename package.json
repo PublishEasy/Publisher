@@ -2,8 +2,12 @@
   "name": "publisher",
   "version": "0.1.0",
   "private": true,
+  "husky": {
+    "hooks": {
+      "pre-push": "./scripts/lint-everything.sh"
+    }
+  },
   "dependencies": {
-    "@types/express": "^4.17.3",
     "express": "^4.17.1"
   },
   "devDependencies": {
@@ -16,6 +20,7 @@
     "@testing-library/react": "*",
     "@testing-library/user-event": "*",
     "@types/eslint": "*",
+    "@types/express": "^4.17.3",
     "@types/html-webpack-plugin": "^3.2.2",
     "@types/jest": "*",
     "@types/node": "*",
@@ -31,6 +36,7 @@
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^2.5.0",
     "html-webpack-plugin": "^3.2.0",
+    "husky": "^4.2.3",
     "jest": "*",
     "prettier": "^1.19.1",
     "react": "*",

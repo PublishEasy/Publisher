@@ -17,7 +17,7 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 run_command_in_docker () {
-    docker run --mount "type=bind,source=$(pwd),target=/app" publisher-base "$@"
+    docker run --rm --mount "type=bind,source=$(pwd),target=/app,consistency=consistent" publisher-base "$@"
 }
 
 echo -e "${YELLOW}Building Docker Container ${NC}"
@@ -51,7 +51,7 @@ sleep 1
 
 echo -n -e "${YELLOW}Beginning Typescript type checking ... ${RED}"
 
-run_command_in_docker $DIRECTORY/helpers-linting/typescript.sh
+run_command_in_docker $DIRECTORY/helpers-linting/typescript.sh --noEmit
 
 echo -e "${GREEN}PASSED"
 sleep 1
