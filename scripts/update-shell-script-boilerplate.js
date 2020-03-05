@@ -26,13 +26,34 @@ const END_INDICATOR =
 function updateScriptBoilerplate(filePath) {
   const file = fs.readFileSync(filePath, 'utf-8');
   const lines = file.split('\n');
+  let newLines;
+  if (lines.length <= 2) {
+    newLines = getNewFileLines(filePath);
+  } else {
+    newLines = getUpdatedBoilerplateLines(lines, filePath);
+  }
+  const newFile = newLines.join('\n');
+  fs.writeFileSync(filePath, newFile);
+}
+
+function getNewFileLines(filePath) {
+  return [
+    '#!/bin/bash',
+    '',
+    START_INDICATOR,
+    ...buildBoilerplateForFilePath(filePath).split('\n'),
+    END_INDICATOR,
+  ];
+}
+
+function getUpdatedBoilerplateLines(lines, filePath) {
   const { boilerplateStartIndex, boilerplateEndIndex } = getIndices(
     lines,
     filePath,
   );
   const endThatExcludesStartIndicator = boilerplateStartIndex;
   const startThatExcludesEndIndicator = boilerplateEndIndex + 1;
-  const newLines = [
+  return [
     ...lines.slice(0, endThatExcludesStartIndicator),
     // This means we'll update to the new start (and end below) indicator if relevant
     START_INDICATOR,
@@ -40,8 +61,6 @@ function updateScriptBoilerplate(filePath) {
     END_INDICATOR,
     ...lines.slice(startThatExcludesEndIndicator),
   ];
-  const newFile = newLines.join('\n');
-  fs.writeFileSync(filePath, newFile);
 }
 
 function getIndices(lines, filePath) {

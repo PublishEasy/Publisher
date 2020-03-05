@@ -5,7 +5,7 @@
 ## You can update all the files by running 'node scripts/update-shell-script-boilerplate.js'.
 ## This will also update the filepaths in case you move any files to different directories
 
-# region Boilerplate
+# region boilerplate
 
 set -e
 
