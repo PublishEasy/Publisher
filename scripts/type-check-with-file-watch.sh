@@ -40,7 +40,6 @@ build_docker_image () {
 
 ## SHELL BOILERPLATE STOPS HERE. FEEL FREE TO EDIT ANYTHING BELOW THIS COMMENT
 
-# Remove any previously stopped containers
-run_docker_compose_command rm --force --stop
+build_docker_image
 
-run_docker_compose_command up --build
+run_command_in_docker_with_colors_and_ctrl_c_capabilites $DIRECTORY/helpers-linting/typescript.sh --watch --noEmit
