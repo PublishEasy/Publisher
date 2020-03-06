@@ -3,25 +3,21 @@
 const path = require('path');
 const glob = require('glob');
 const fs = require('fs');
+const ROOT_DIRECTORY_PATH = require('./get-root-path');
 
-glob(path.resolve(__dirname, '**/*.sh'), {}, (err, files) => {
-  if (err) {
-    console.err(err);
-    return;
-  }
-  files.forEach(updateScriptBoilerplate);
-});
+const SCRIPTS_FOLDER_NAME = 'scripts';
 
-const OLD_START_INDICATOR =
-  '## SHELL BOILERPLATE STARTS HERE. DONT TOUCH ANYTHING INCLUDING THESE COMMENTS, ONLY EDIT THROUGH NODE SCRIPT';
-// Just change this if you want to change the indicator and then after running it will update the indicator, and you can change
-// OLD_START_INDICATOR the new START_INDICATOR
-const START_INDICATOR =
-  '## SHELL BOILERPLATE STARTS HERE. DONT TOUCH ANYTHING INCLUDING THESE COMMENTS, ONLY EDIT THROUGH NODE SCRIPT';
-const OLD_END_INDICATOR =
-  '## SHELL BOILERPLATE STOPS HERE. FEEL FREE TO EDIT ANYTHING BELOW THIS COMMENT';
-const END_INDICATOR =
-  '## SHELL BOILERPLATE STOPS HERE. FEEL FREE TO EDIT ANYTHING BELOW THIS COMMENT';
+glob(
+  path.resolve(ROOT_DIRECTORY_PATH, SCRIPTS_FOLDER_NAME, '**/*.sh'),
+  {},
+  (err, files) => {
+    if (err) {
+      console.err(err);
+      return;
+    }
+    files.forEach(updateScriptBoilerplate);
+  },
+);
 
 function updateScriptBoilerplate(filePath) {
   const file = fs.readFileSync(filePath, 'utf-8');
@@ -30,6 +26,7 @@ function updateScriptBoilerplate(filePath) {
   if (lines.length <= 2) {
     newLines = getNewFileLines(filePath);
   } else {
+    assertCorrectFileStart(lines, filePath);
     newLines = getUpdatedBoilerplateLines(lines, filePath);
   }
   const newFile = newLines.join('\n');
@@ -37,43 +34,39 @@ function updateScriptBoilerplate(filePath) {
 }
 
 function getNewFileLines(filePath) {
-  return [
-    '#!/bin/bash',
-    '',
-    START_INDICATOR,
-    ...buildBoilerplateForFilePath(filePath).split('\n'),
-    END_INDICATOR,
-  ];
+  return ['#!/bin/bash', '', ...getBoilerplateLinesForFilePath(filePath)];
 }
 
 function getUpdatedBoilerplateLines(lines, filePath) {
-  const { boilerplateStartIndex, boilerplateEndIndex } = getIndices(
-    lines,
-    filePath,
-  );
+  const {
+    boilerplateStartIndex,
+    boilerplateEndIndex,
+  } = findBoilerplateLineIndices(lines);
   const endThatExcludesStartIndicator = boilerplateStartIndex;
   const startThatExcludesEndIndicator = boilerplateEndIndex + 1;
   return [
     ...lines.slice(0, endThatExcludesStartIndicator),
-    // This means we'll update to the new start (and end below) indicator if relevant
-    START_INDICATOR,
-    ...buildBoilerplateForFilePath(filePath).split('\n'),
-    END_INDICATOR,
+    ...getBoilerplateLinesForFilePath(filePath),
     ...lines.slice(startThatExcludesEndIndicator),
   ];
 }
 
-function getIndices(lines, filePath) {
-  const boilerplateStartIndex = lines.findIndex(x => x === OLD_START_INDICATOR);
-  const boilerplateEndIndex = lines.findIndex(x => x === OLD_END_INDICATOR);
-  if (boilerplateStartIndex === -1)
-    throw new Error(`${filePath} did not have the start indicator`);
-  if (boilerplateEndIndex === -1)
-    throw new Error(`${filePath} did not have the end indicator`);
+/**
+ * If you want to change an indicator, change the one without OLD prefix, run the script,
+ * then change old one and then all indicators will be changed and future script runs will work perfectly
+ */
+const OLD_START_INDICATOR =
+  '## SHELL BOILERPLATE STARTS HERE. DONT TOUCH ANYTHING INCLUDING THESE COMMENTS, ONLY EDIT THROUGH NODE SCRIPT';
+const START_INDICATOR = OLD_START_INDICATOR;
+const OLD_END_INDICATOR =
+  '## SHELL BOILERPLATE STOPS HERE. FEEL FREE TO EDIT ANYTHING BELOW THIS COMMENT';
+const END_INDICATOR = OLD_END_INDICATOR;
+
+function assertCorrectFileStart(lines, filePath) {
   if (
     lines[0] !== '#!/bin/bash' ||
     lines[1] !== '' ||
-    boilerplateStartIndex !== 2
+    lines[2] !== START_INDICATOR
   ) {
     throw new Error(
       `${filePath} did not start with #!/bin/bash followed by an empty line and then the boilerplate. Beginning lines were\n${JSON.stringify(
@@ -81,18 +74,34 @@ function getIndices(lines, filePath) {
       )}`,
     );
   }
+}
+
+function findBoilerplateLineIndices(lines) {
+  const boilerplateStartIndex = lines.findIndex(x => x === OLD_START_INDICATOR);
+  const boilerplateEndIndex = lines.findIndex(x => x === OLD_END_INDICATOR);
+  if (boilerplateStartIndex === -1)
+    throw new Error(`${filePath} did not have the start indicator`);
+  if (boilerplateEndIndex === -1)
+    throw new Error(`${filePath} did not have the end indicator`);
   return { boilerplateStartIndex, boilerplateEndIndex };
 }
 
-const buildBoilerplateForFilePath = filePath => {
+function getBoilerplateLinesForFilePath(filePath) {
+  return [
+    START_INDICATOR,
+    ...buildBoilerplateContentForPath(filePath).split('\n'),
+    END_INDICATOR,
+  ];
+}
+
+function buildBoilerplateContentForPath(filePath) {
   const getPathFromContextToFilePath = '$(dirname "${BASH_SOURCE[0]}")';
-  const rootDirectoryPath = path.resolve(__dirname, '..');
   const fileDirectory = path.dirname(filePath);
   const fileDirectoryRelativeToRoot = path.relative(
-    rootDirectoryPath,
+    ROOT_DIRECTORY_PATH,
     fileDirectory,
   );
-  const pathFromFileToRoot = path.relative(fileDirectory, rootDirectoryPath);
+  const pathFromFileToRoot = path.relative(fileDirectory, ROOT_DIRECTORY_PATH);
   return `\
 
 ## You can update all the files by running 'node scripts/update-shell-script-boilerplate.js'.
@@ -131,4 +140,4 @@ build_docker_image () {
 }
 # endregion
 `;
-};
+}
