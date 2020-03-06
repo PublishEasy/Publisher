@@ -1,13 +1,32 @@
 /* eslint-disable */
-module.exports = {
+const common = {
   globals: {
     'ts-jest': {
       tsConfig: 'tsconfig.json',
+      // Disables type checking the tests
+      isolatedModules: true,
     },
   },
-  moduleFileExtensions: ['js', 'ts', 'tsx'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
-  testEnvironment: 'node',
+  rootDir: '<rootDir>/../../',
+};
+module.exports = {
+  projects: [
+    {
+      displayName: 'Unit tests',
+      testEnvironment: 'node',
+      testMatch: ['<rootDir>/src/**/__tests__/*.unit.test.ts'],
+      ...common,
+    },
+    {
+      displayName: 'ESLint unit tests',
+      testEnvironment: 'node',
+      testMatch: [
+        '<rootDir>/config/linting/custom-eslint-rules/**/__tests__/*.test.ts',
+      ],
+      ...common,
+    },
+  ],
 };

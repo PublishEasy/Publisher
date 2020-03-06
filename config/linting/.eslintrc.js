@@ -26,6 +26,8 @@ const extraEnabledRules = {
   'import/no-extraneous-dependencies': 'error',
   'react-hooks/rules-of-hooks': 'error',
   'react-hooks/exhaustive-deps': 'error',
+  'publisher/custom-rules/only-parent-import-file-you-are-testing': 'error',
+  'publisher/custom-rules/only-import-internal-from-inside-and-index': 'error',
 };
 
 const disabledRules = {

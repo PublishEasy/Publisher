@@ -18,9 +18,10 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noImplicitThis": true,
+    "checkJs": false,
     "isolatedModules": true,
     "jsx": "react",
-    "allowJs": false,
+    "allowJs": true,
     "outDir": "dist",
     "typeRoots": ["node_modules/@types", "src/types"]
   },
