@@ -30,16 +30,16 @@ class ViolationFinder {
 
   getViolationIfAny() {
     const violations = [];
-    violations.push(this.getAnyInternalSubdirectoryViolation());
-    violations.push(this.getAnyImportViolationFromInternal());
-    violations.push(this.getAnyImportInternalFromExternalViolations());
+    violations.push(this.getAnySubdirectoryOfInternalViolation());
+    violations.push(this.getAnyImportFromInternalViolation());
+    violations.push(this.getAnyImportInternalFromExternalViolation());
     const violationIfAny = violations.find(x => x !== undefined);
     return violationIfAny;
   }
 
-  getAnyInternalSubdirectoryViolation() {
+  getAnySubdirectoryOfInternalViolation() {
     const isInSubdirectoryOfInternal =
-      this.sourceIsInInternalDirectory() && !this.isDirectlyUnderInternal();
+      this.sourceIsInInternal() && !this.sourceIsDirectlyUnderInternal();
     if (isInSubdirectoryOfInternal) {
       return {
         message:
@@ -49,31 +49,29 @@ class ViolationFinder {
     }
   }
 
-  isDirectlyUnderInternal() {
+  sourceIsDirectlyUnderInternal() {
     const lastTwoPartsOfPath = this.filePath.split('/').slice(-2);
     const parentIsInternal = lastTwoPartsOfPath[0] === 'internal';
     return parentIsInternal;
   }
 
-  getAnyImportViolationFromInternal() {
-    let violation = undefined;
-    if (this.onlyAbsoluteImportsAllowed(this.filePath)) {
-      violation = this.getAnyAbsoluteImportViolation();
-    } else if (this.sourceIsInInternalDirectory()) {
-      violation = this.getAnyExternalImportViolations(
-        this.importPath,
-        this.filePath,
-      );
+  getAnyImportFromInternalViolation() {
+    if (this.sourceIsInInternal()) {
+      let violation = undefined;
+      if (this.isInternalDependenciesFile()) {
+        violation = this.getViolationIfIsAbsoluteImport();
+      } else {
+        violation = this.getViolationIfNotImportingInternalRelatively();
+      }
+      return violation;
     }
-
-    return violation;
   }
 
-  onlyAbsoluteImportsAllowed() {
+  isInternalDependenciesFile() {
     return this.filePath.endsWith('/internal/dependencies.ts');
   }
 
-  getAnyAbsoluteImportViolation() {
+  getViolationIfIsAbsoluteImport() {
     const isRelativeImport =
       this.importPath.startsWith('./') || this.importPath.startsWith('..');
     if (isRelativeImport) {
@@ -85,7 +83,7 @@ class ViolationFinder {
     }
   }
 
-  getAnyExternalImportViolations() {
+  getViolationIfNotImportingInternalRelatively() {
     const isLocalRelativeImport = /\.\/[^\/]+$/.test(this.importPath);
     if (!isLocalRelativeImport) {
       return {
@@ -96,10 +94,10 @@ class ViolationFinder {
     }
   }
 
-  getAnyImportInternalFromExternalViolations() {
+  getAnyImportInternalFromExternalViolation() {
     const isInViolation =
-      this.importIsInInternalDirectory() &&
-      !this.sourceIsInInternalDirectory() &&
+      this.isImportingFromInternalDirectory() &&
+      !this.sourceIsInInternal() &&
       !this.isIndexFileImportingOwnInternal();
     if (isInViolation) {
       return {
@@ -111,18 +109,25 @@ class ViolationFinder {
   }
 
   isIndexFileImportingOwnInternal() {
-    const isIndexFile = this.filePath.endsWith('/index.ts');
-    const isImportingDirectInternalChild = /^\.\/internal\/[^\/]+$/.test(
-      this.importPath,
-    );
-    return isIndexFile && isImportingDirectInternalChild;
+    return this.isIndexFile() && this.isImportingDirectInternalChild();
   }
 
-  sourceIsInInternalDirectory() {
+  isIndexFile() {
+    return this.filePath.endsWith('/index.ts');
+  }
+
+  isImportingDirectInternalChild() {
+    const directImportInternalPattern = new RegExp(
+      String.raw`^\./internal/[^/]+$`,
+    );
+    return directImportInternalPattern.test(this.importPath);
+  }
+
+  sourceIsInInternal() {
     return this.fileIsInInternalDirectory(this.filePath);
   }
 
-  importIsInInternalDirectory() {
+  isImportingFromInternalDirectory() {
     return this.fileIsInInternalDirectory(this.importPath);
   }
   fileIsInInternalDirectory(filePath) {
