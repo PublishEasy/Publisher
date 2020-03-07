@@ -1,11 +1,2 @@
-import {
-  Request as ExpressRequest,
-  RequestHandler as ExpressRequestHandler,
-  Response as ExpressResponse,
-  Router as ExpressRouter
-} from 'express';
-
-export type ExpressRequest = ExpressRequest;
-export type ExpressRequestHandler = ExpressRequestHandler;
-export type ExpressResponse = ExpressResponse;
-export type ExpressRouter = ExpressRouter;
+export type { Request as ExpressRequest, RequestHandler as ExpressRequestHandler, Response as ExpressResponse } from 'express';
+export { Router as ExpressRouter } from 'express'

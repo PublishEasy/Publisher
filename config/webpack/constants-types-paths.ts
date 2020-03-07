@@ -6,7 +6,8 @@
 import 'webpack-dev-server';
 
 import path from 'path';
-import { Configuration } from 'webpack';
+
+import type { Configuration } from 'webpack';
 
 // Can't export normally due to --isolatedModules https://github.com/Microsoft/TypeScript/issues/21194
 export type WebpackConfig = Configuration;
