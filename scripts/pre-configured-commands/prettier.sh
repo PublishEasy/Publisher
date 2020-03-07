@@ -44,4 +44,4 @@ build_docker_image () {
 --check \
 --config ./config/linting/.prettierrc.yml \
 "$@" \
-'./**' '!./{coverage,dist,public}/**' '!./*' '!./**/{Dockerfile,*.sh}'
+'./**' '!./**/{coverage,dist,public}/**' '!./*' '!./**/{Dockerfile,*.sh}'

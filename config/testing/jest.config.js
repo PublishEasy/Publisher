@@ -13,6 +13,7 @@ const common = {
   rootDir: '<rootDir>/../../',
 };
 module.exports = {
+  ...common,
   projects: [
     {
       displayName: 'Unit tests',
