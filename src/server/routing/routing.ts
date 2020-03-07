@@ -25,7 +25,7 @@ interface RoutingStrategy {
 }
 
 class AuthenticationRoutingStrategy implements RoutingStrategy {
-  applyRoutes(router) {
+  applyRoutes(router: express.Router) {
     router.get('/', (req, res) => res.send('Authentication'));
   }
 }

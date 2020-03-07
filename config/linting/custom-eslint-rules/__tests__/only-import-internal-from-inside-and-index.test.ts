@@ -1,8 +1,4 @@
-/* eslint-disable */
-// Just avoiding eslint circular imports
 import { create } from '../only-import-internal-from-inside-and-index';
-
-/* eslint-enable */
 
 const moduleParentDirectory = 'a';
 const moduleDirectoryName = 'b';

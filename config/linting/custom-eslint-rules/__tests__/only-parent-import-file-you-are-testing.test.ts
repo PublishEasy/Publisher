@@ -1,8 +1,4 @@
-/* eslint-disable */
-// Just avoiding eslint circular imports
 import { create } from '../only-parent-import-file-you-are-testing';
-
-/* eslint-enable */
 
 const fileBaseName = 'some-filename';
 const parentDirectory = 'c';

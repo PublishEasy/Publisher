@@ -26,8 +26,11 @@ const extraEnabledRules = {
   'import/no-extraneous-dependencies': 'error',
   'react-hooks/rules-of-hooks': 'error',
   'react-hooks/exhaustive-deps': 'error',
-  'publisher/custom-rules/only-parent-import-file-you-are-testing': 'error',
-  'publisher/custom-rules/only-import-internal-from-inside-and-index': 'error',
+};
+
+const ourCustomEnabledRules = {
+  'only-parent-import-file-you-are-testing': 'error',
+  'only-import-internal-from-inside-and-index': 'error',
 };
 
 const disabledRules = {
@@ -48,6 +51,7 @@ module.exports = {
   rules: {
     ...extraEnabledRules,
     ...disabledRules,
+    ...ourCustomEnabledRules,
   },
   settings: {
     'import/extensions': ['ts', 'tsx'],

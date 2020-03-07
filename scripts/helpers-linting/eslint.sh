@@ -43,6 +43,7 @@ build_docker_image () {
 ./node_modules/.bin/eslint \
 --config ./config/linting/.eslintrc.js \
 --ignore-path .gitignore \
+--rulesdir ./config/linting/custom-eslint-rules \
 --ext .ts,.tsx,.js,.jsx \
 --max-warnings 0 \
 "$@" \
