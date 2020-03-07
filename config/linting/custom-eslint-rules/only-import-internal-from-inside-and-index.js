@@ -1,85 +1,131 @@
 /* eslint-disable */
 module.exports = {
-  create: function onlyParentImportFileYouAreTesting(context) {
+  create: function onlyImportInternalFromInsideAndIndex(context) {
     return {
       ImportDeclaration(node) {
         const importPath = node.source.value;
-        const isUnderInternal = /\/internal\//.test(context.getFilename());
-        checkIfIsSubdirectoryOfInternal(context, isUnderInternal, node);
-        checkInvalidImportsWithinInternal(
+        const filePath = context.getFilename();
+
+        const violationIfAny = new ViolationFinder({
+          filePath,
           importPath,
-          isUnderInternal,
-          context,
-          node,
-        );
-        checkImportingInternalFromOutside(
-          importPath,
-          context,
-          isUnderInternal,
-          node,
-        );
+        }).getViolationIfAny();
+
+        if (violationIfAny) {
+          context.report({
+            node,
+            ...violationIfAny,
+          });
+        }
       },
     };
   },
 };
 
-function checkIfIsSubdirectoryOfInternal(context, isUnderInternal, node) {
-  const isDirectlyUnderInternal =
-    context
-      .getFilename()
-      .split('/')
-      .slice(-2)[0] === 'internal';
-  const isInSubdirectoryOfInternal =
-    isUnderInternal && !isDirectlyUnderInternal;
-  if (isInSubdirectoryOfInternal) {
-    context.report({
-      node,
-      message:
-        'File {{filename}} is in a subdirectory of an internal directory which is not allowed',
-      data: { filename: context.getFilename() },
-    });
+class ViolationFinder {
+  constructor({ filePath, importPath }) {
+    this.filePath = filePath;
+    this.importPath = importPath;
   }
-}
 
-function checkInvalidImportsWithinInternal(
-  importPath,
-  isUnderInternal,
-  context,
-  node,
-) {
-  const isLocalRelativeImport = /\.\/[^\/]+$/.test(importPath);
-  const isNotLocalImportFromWithinInternal =
-    isUnderInternal && !isLocalRelativeImport;
-  if (isNotLocalImportFromWithinInternal) {
-    context.report({
-      node,
-      message:
-        'File {{filename}} is importing {{importPath}} from within internal directory where it is only allowed to relatively import other files in that internal directory',
-      data: { filename: context.getFilename(), importPath },
-    });
+  getViolationIfAny() {
+    const violations = [];
+    violations.push(this.getAnyInternalSubdirectoryViolation());
+    violations.push(this.getAnyImportViolationFromInternal());
+    violations.push(this.getAnyImportInternalFromExternalViolations());
+    const violationIfAny = violations.find(x => x !== undefined);
+    return violationIfAny;
   }
-}
 
-function checkImportingInternalFromOutside(
-  importPath,
-  context,
-  isUnderInternal,
-  node,
-) {
-  const isImportingInternal = /\/internal\//.test(importPath);
-  const isIndexFileImportingRelevantInternal =
-    context.getFilename().endsWith('/index.ts') &&
-    /^\.\/internal\/[^\/]+$/.test(importPath);
-  const importingInternalFromOutsideWithoutBeingIndex =
-    !isUnderInternal &&
-    isImportingInternal &&
-    !isIndexFileImportingRelevantInternal;
-  if (importingInternalFromOutsideWithoutBeingIndex) {
-    context.report({
-      node,
-      message:
-        'File {{filename}} is importing {{importPath}} which is in an internal directory. Only related index files are allowed to do this',
-      data: { filename: context.getFilename(), importPath },
-    });
+  getAnyInternalSubdirectoryViolation() {
+    const isInSubdirectoryOfInternal =
+      this.sourceIsInInternalDirectory() && !this.isDirectlyUnderInternal();
+    if (isInSubdirectoryOfInternal) {
+      return {
+        message:
+          'File {{filePath}} is in a subdirectory of an internal directory which is not allowed',
+        data: { filePath: this.filePath },
+      };
+    }
+  }
+
+  isDirectlyUnderInternal() {
+    const lastTwoPartsOfPath = this.filePath.split('/').slice(-2);
+    const parentIsInternal = lastTwoPartsOfPath[0] === 'internal';
+    return parentIsInternal;
+  }
+
+  getAnyImportViolationFromInternal() {
+    let violation = undefined;
+    if (this.onlyAbsoluteImportsAllowed(this.filePath)) {
+      violation = this.getAnyAbsoluteImportViolation();
+    } else if (this.sourceIsInInternalDirectory()) {
+      violation = this.getAnyExternalImportViolations(
+        this.importPath,
+        this.filePath,
+      );
+    }
+
+    return violation;
+  }
+
+  onlyAbsoluteImportsAllowed() {
+    return this.filePath.endsWith('/internal/dependencies.ts');
+  }
+
+  getAnyAbsoluteImportViolation() {
+    const isRelativeImport =
+      this.importPath.startsWith('./') || this.importPath.startsWith('..');
+    if (isRelativeImport) {
+      return {
+        message:
+          'The file {{filePath}} is importing {{importPath}} which is a relative import. Only absolute imports are allowed from this file',
+        data: { filePath: this.filePath, importPath: this.importPath },
+      };
+    }
+  }
+
+  getAnyExternalImportViolations() {
+    const isLocalRelativeImport = /\.\/[^\/]+$/.test(this.importPath);
+    if (!isLocalRelativeImport) {
+      return {
+        message:
+          'File {{filePath}} is importing {{importPath}} from within internal directory where it is only allowed to relatively import other files in that internal directory',
+        data: { filePath: this.filePath, importPath: this.importPath },
+      };
+    }
+  }
+
+  getAnyImportInternalFromExternalViolations() {
+    const isInViolation =
+      this.importIsInInternalDirectory() &&
+      !this.sourceIsInInternalDirectory() &&
+      !this.isIndexFileImportingOwnInternal();
+    if (isInViolation) {
+      return {
+        message:
+          'File {{filePath}} is importing {{importPath}} which is in an internal directory. Only direct parent index files are allowed to do this',
+        data: { filePath: this.filePath, importPath: this.importPath },
+      };
+    }
+  }
+
+  isIndexFileImportingOwnInternal() {
+    const isIndexFile = this.filePath.endsWith('/index.ts');
+    const isImportingDirectInternalChild = /^\.\/internal\/[^\/]+$/.test(
+      this.importPath,
+    );
+    return isIndexFile && isImportingDirectInternalChild;
+  }
+
+  sourceIsInInternalDirectory() {
+    return this.fileIsInInternalDirectory(this.filePath);
+  }
+
+  importIsInInternalDirectory() {
+    return this.fileIsInInternalDirectory(this.importPath);
+  }
+  fileIsInInternalDirectory(filePath) {
+    return /\/internal\//.test(filePath);
   }
 }
