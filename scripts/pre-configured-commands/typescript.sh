@@ -13,7 +13,7 @@ ROOT_DIRECTORY=$(dirname "${BASH_SOURCE[0]}")/../..
 cd $ROOT_DIRECTORY
 
 # We want relative paths for docker commands specifically and since we use cd relative paths work
-DIRECTORY=scripts/helpers-linting
+DIRECTORY=scripts/pre-configured-commands
 ROOT_DIRECTORY=.
 
 

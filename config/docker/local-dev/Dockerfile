@@ -5,6 +5,7 @@ FROM node:12-alpine
 WORKDIR /app
 
 RUN apk add --no-cache --upgrade bash
+RUN apk add --no-cache --upgrade git
 
 COPY ["package.json", "yarn.lock", "./"]
 

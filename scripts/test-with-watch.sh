@@ -9,11 +9,11 @@
 
 set -e
 
-ROOT_DIRECTORY=$(dirname "${BASH_SOURCE[0]}")/../..
+ROOT_DIRECTORY=$(dirname "${BASH_SOURCE[0]}")/..
 cd $ROOT_DIRECTORY
 
 # We want relative paths for docker commands specifically and since we use cd relative paths work
-DIRECTORY=scripts/helpers-linting
+DIRECTORY=scripts
 ROOT_DIRECTORY=.
 
 
@@ -40,11 +40,6 @@ build_docker_image () {
 
 ## SHELL BOILERPLATE STOPS HERE. FEEL FREE TO EDIT ANYTHING BELOW THIS COMMENT
 
-./node_modules/.bin/eslint \
---config ./config/linting/.eslintrc.js \
---ignore-path .gitignore \
---rulesdir ./config/linting/custom-eslint-rules \
---ext .ts,.tsx,.js,.jsx \
---max-warnings 0 \
-"$@" \
-./
+build_docker_image
+
+run_command_in_docker_with_colors_and_ctrl_c_capabilites $DIRECTORY/pre-configured-commands/jest.sh --watch

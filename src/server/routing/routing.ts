@@ -1,31 +1,31 @@
-import express from 'express';
+// import express from 'express';
 
-type RouterGetter = (middleware: express.RequestHandler[]) => express.Router;
-const getAuthenticationServerRouter: RouterGetter = middleware => {
-  return getRouter(middleware, new AuthenticationRoutingStrategy());
-};
+// type RouterGetter = (middleware: express.RequestHandler[]) => express.Router;
+// const getAuthenticationServerRouter: RouterGetter = middleware => {
+//   return getRouter(middleware, new AuthenticationRoutingStrategy());
+// };
 
-const getCMSWebServerRouter: RouterGetter = middleware => {
-  const router = express.Router();
-  router.use(middleware);
-};
+// const getCMSWebServerRouter: RouterGetter = middleware => {
+//   const router = express.Router();
+//   router.use(middleware);
+// };
 
-function getRouter(
-  middleware: express.RequestHandler[],
-  routingStrategy: RoutingStrategy,
-) {
-  const router = express.Router();
-  router.use(middleware);
-  routingStrategy.applyRoutes(router);
-  return router;
-}
+// function getRouter(
+//   middleware: express.RequestHandler[],
+//   routingStrategy: RoutingStrategy,
+// ) {
+//   const router = express.Router();
+//   router.use(middleware);
+//   routingStrategy.applyRoutes(router);
+//   return router;
+// }
 
-interface RoutingStrategy {
-  applyRoutes(router: express.Router): void;
-}
+// interface RoutingStrategy {
+//   applyRoutes(router: express.Router): void;
+// }
 
-class AuthenticationRoutingStrategy implements RoutingStrategy {
-  applyRoutes(router: express.Router) {
-    router.get('/', (req, res) => res.send('Authentication'));
-  }
-}
+// class AuthenticationRoutingStrategy implements RoutingStrategy {
+//   applyRoutes(router: express.Router) {
+//     router.get('/', (req, res) => res.send('Authentication'));
+//   }
+// }

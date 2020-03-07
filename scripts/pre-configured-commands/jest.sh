@@ -13,7 +13,7 @@ ROOT_DIRECTORY=$(dirname "${BASH_SOURCE[0]}")/../..
 cd $ROOT_DIRECTORY
 
 # We want relative paths for docker commands specifically and since we use cd relative paths work
-DIRECTORY=scripts/helpers-linting
+DIRECTORY=scripts/pre-configured-commands
 ROOT_DIRECTORY=.
 
 
@@ -40,8 +40,4 @@ build_docker_image () {
 
 ## SHELL BOILERPLATE STOPS HERE. FEEL FREE TO EDIT ANYTHING BELOW THIS COMMENT
 
-./node_modules/.bin/prettier \
---check \
---config ./config/linting/.prettierrc.yml \
-"$@" \
-'./**' '!./{coverage,dist,public}/**' '!./*' '!./**/{Dockerfile,*.sh}'
+./node_modules/.bin/jest --config ./config/testing/jest.config.js "$@"

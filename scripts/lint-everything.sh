@@ -60,7 +60,7 @@ sleep 0.5
 # The red at the end will make any errors output by the command be red. And it only writes anything to console if there are errors
 echo -n -e "Beginning Eslint linting ... ${RED}"
 
-run_command_in_docker_with_write_access $DIRECTORY/helpers-linting/eslint.sh --fix
+run_command_in_docker_with_write_access $DIRECTORY/pre-configured-commands/eslint.sh --fix
 
 echo -e "${GREEN}PASSED"
 echo ""
@@ -69,7 +69,7 @@ sleep 1
 echo -e "${YELLOW}Beginning Prettier formatting ... ${CYAN}"
 echo ""
 
-run_command_in_docker_with_write_access $DIRECTORY/helpers-linting/prettier.sh --write
+run_command_in_docker_with_write_access $DIRECTORY/pre-configured-commands/prettier.sh --write
 
 echo ""
 echo -e "${GREEN}PASSED"
@@ -78,7 +78,7 @@ sleep 1
 
 echo -n -e "${YELLOW}Beginning Typescript type checking ... ${RED}"
 
-run_command_in_docker_with_write_access $DIRECTORY/helpers-linting/typescript.sh --noEmit
+run_command_in_docker_with_write_access $DIRECTORY/pre-configured-commands/typescript.sh --noEmit
 
 echo -e "${GREEN}PASSED"
 sleep 1
