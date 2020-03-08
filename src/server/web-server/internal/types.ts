@@ -1,4 +1,20 @@
+import type { NodeHTTPServer } from './dependencies';
+
 type Route = { pathPattern: string; routeHandler: RouteHandler };
+
+export interface WebServer {
+  addRouter(pathPrefix: string, router: Router): WebServer;
+  exposeToInternetOnPort(port: number): NodeHTTPServer;
+}
+
+export interface Router {
+  addMiddleware(...middleware: Middleware[]): Router;
+  addGETRoute(routePattern: string, routeHandler: RouteHandler): Router;
+  /**
+   * This is only intended for use by the WebServer receiving it and for testing
+   */
+  __toRouterSpec(): RouterSpec;
+}
 
 export type RouterSpec = {
   middleware: Middleware[];

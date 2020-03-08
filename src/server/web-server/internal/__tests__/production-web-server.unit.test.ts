@@ -1,14 +1,14 @@
 import createTestRequester from 'supertest';
 
-import { WebServerBuilder } from '../web-server-builder';
+import { ProductionWebServer } from '../production-web-server';
 
 describe('ProductionWebServer', () => {
   it.skip('calls a wildcard get handler for `/`', done => {
-    const server = new WebServerBuilder();
+    const server = new ProductionWebServer();
     // const handlerMock = jest
     //   .fn()
     //   .mockImplementation((req, res) => res.sendStatus(200));
-    createTestRequester(server.toNodeHttpServer())
+    createTestRequester(server.exposeToInternetOnPort(12345))
       .get('/')
       .expect(200, done);
   });

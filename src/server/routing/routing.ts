@@ -1,41 +1,37 @@
-import {
-  Middleware,
-  RouterSpec,
-  RouterSpecBuilder
-} from 'src/server/web-server';
+import { ConcreteRouter, Middleware, Router } from 'src/server/web-server';
 
-type RouterSpecGetter = (middleware: Middleware[]) => RouterSpec;
+type RouterGetter = (...middleware: Middleware[]) => Router;
 
-export const getAuthenticationServerRouter: RouterSpecGetter = middleware => {
+export const getAuthenticationServerRouter: RouterGetter = (...middleware) => {
   return getRouterSpec(middleware, new AuthenticationRoutingStrategy());
 };
 
-export const getCMSWebServerRouter: RouterSpecGetter = middleware => {
+export const getCMSWebServerRouter: RouterGetter = (...middleware) => {
   return getRouterSpec(middleware, new CMSWebServerRoutingStrategy());
 };
 
 function getRouterSpec(
   middleware: Middleware[],
   routingStrategy: RoutingStrategy,
-): RouterSpec {
-  const builder = new RouterSpecBuilder();
-  builder.addMiddleware(middleware);
-  routingStrategy.applyRoutes(builder);
-  return builder.build();
+): Router {
+  const router = new ConcreteRouter();
+  router.addMiddleware(...middleware);
+  routingStrategy.applyRoutes(router);
+  return router;
 }
 
 interface RoutingStrategy {
-  applyRoutes(router: RouterSpecBuilder): void;
+  applyRoutes(router: ConcreteRouter): void;
 }
 
 class AuthenticationRoutingStrategy implements RoutingStrategy {
-  applyRoutes(router: RouterSpecBuilder): void {
+  applyRoutes(router: ConcreteRouter): void {
     router.addGETRoute('/', (_req, res) => res.send('Authentication'));
   }
 }
 
 class CMSWebServerRoutingStrategy implements RoutingStrategy {
-  applyRoutes(router: RouterSpecBuilder): void {
+  applyRoutes(router: ConcreteRouter): void {
     router.addGETRoute('/', (_req, res) => res.send('CMS'));
   }
 }
