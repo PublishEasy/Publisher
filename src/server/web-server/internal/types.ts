@@ -11,6 +11,7 @@ export interface Router {
   addMiddleware(...middleware: Middleware[]): Router;
   addGETRoute(routePattern: string, routeHandler: RouteHandler): Router;
   /**
+   * @restricted
    * This is only intended for use by the WebServer receiving it and for testing
    */
   __toRouterSpec(): RouterSpec;

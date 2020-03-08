@@ -12,9 +12,6 @@ export class ConcreteRouter implements Router {
     return this;
   }
 
-  /**
-   * This is only intended for use by the WebServer receiving it and for testing
-   */
   __toRouterSpec(): RouterSpec {
     return {
       middleware: [],
