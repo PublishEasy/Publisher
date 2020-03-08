@@ -1,37 +1,41 @@
-import { Middleware, ProductionRouter, Router } from 'src/server/web-server';
+import {
+  Middleware,
+  RouterSpec,
+  RouterSpecBuilder
+} from 'src/server/web-server';
 
-export type RouterGetter = (middleware: Middleware[]) => Router;
+type RouterSpecGetter = (middleware: Middleware[]) => RouterSpec;
 
-export const getAuthenticationServerRouter: RouterGetter = middleware => {
-  return getRouter(middleware, new AuthenticationRoutingStrategy());
+export const getAuthenticationServerRouter: RouterSpecGetter = middleware => {
+  return getRouterSpec(middleware, new AuthenticationRoutingStrategy());
 };
 
-export const getCMSWebServerRouter: RouterGetter = middleware => {
-  return getRouter(middleware, new CMSWebServerRoutingStrategy());
+export const getCMSWebServerRouter: RouterSpecGetter = middleware => {
+  return getRouterSpec(middleware, new CMSWebServerRoutingStrategy());
 };
 
-function getRouter(
+function getRouterSpec(
   middleware: Middleware[],
   routingStrategy: RoutingStrategy,
-): Router {
-  const router = new ProductionRouter();
-  router.addMiddleware(middleware);
-  routingStrategy.applyRoutes(router);
-  return router;
+): RouterSpec {
+  const builder = new RouterSpecBuilder();
+  builder.addMiddleware(middleware);
+  routingStrategy.applyRoutes(builder);
+  return builder.build();
 }
 
 interface RoutingStrategy {
-  applyRoutes(router: Router): void;
+  applyRoutes(router: RouterSpecBuilder): void;
 }
 
 class AuthenticationRoutingStrategy implements RoutingStrategy {
-  applyRoutes(router: Router): void {
-    router.addGETRoute('/', (req, res) => res.send('Authentication'));
+  applyRoutes(router: RouterSpecBuilder): void {
+    router.addGETRoute('/', (_req, res) => res.send('Authentication'));
   }
 }
 
 class CMSWebServerRoutingStrategy implements RoutingStrategy {
-  applyRoutes(router: Router): void {
-    router.addGETRoute('/', (req, res) => res.send('CMS'));
+  applyRoutes(router: RouterSpecBuilder): void {
+    router.addGETRoute('/', (_req, res) => res.send('CMS'));
   }
 }

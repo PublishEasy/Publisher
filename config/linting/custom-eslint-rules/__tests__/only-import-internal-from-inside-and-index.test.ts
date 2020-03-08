@@ -79,6 +79,30 @@ describe('only-import-internal-from-inside-and-index eslint rule', () => {
           importPath: '../../b/c.ts',
         },
       },
+      {
+        description:
+          'importing internal with absolute import from a test file belong to the directory',
+        parameters: {
+          currentFilePath: `${pathToInternal}/__tests__/a.test.ts`,
+          importPath: `${pathToInternal}/a.txt`,
+        },
+      },
+      {
+        description:
+          'importing internal with relative import that takes a detour from a test file belonging to the directory',
+        parameters: {
+          currentFilePath: `${pathToInternal}/__tests__/a.test.ts`,
+          importPath: '../../internal/a.txt',
+        },
+      },
+      {
+        description:
+          'importing internal with direct parent relative import from a non test file in the tests directory of the internal directory',
+        parameters: {
+          currentFilePath: `${pathToInternal}/__tests__/a.ts`,
+          importPath: '../a.txt',
+        },
+      },
     ];
 
     testCases.forEach(({ description, parameters }) =>
@@ -114,6 +138,14 @@ describe('only-import-internal-from-inside-and-index eslint rule', () => {
         parameters: {
           currentFilePath: `${pathToInternal}/dependencies.ts`,
           importPath: 'express',
+        },
+      },
+      {
+        description:
+          'importing with direct parent relative import from inside the internal directories __tests__ directory',
+        parameters: {
+          currentFilePath: `${pathToInternal}/__tests__/a.test.ts`,
+          importPath: '../a.ts',
         },
       },
     ];

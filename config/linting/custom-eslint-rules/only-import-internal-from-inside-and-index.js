@@ -1,4 +1,5 @@
-/* eslint-disable */
+/* eslint-env commonjs */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 module.exports = {
   create: function onlyImportInternalFromInsideAndIndex(context) {
     return {
@@ -40,13 +41,27 @@ class ViolationFinder {
   getAnySubdirectoryOfInternalViolation() {
     const isInSubdirectoryOfInternal =
       this.sourceIsInInternal() && !this.sourceIsDirectlyUnderInternal();
-    if (isInSubdirectoryOfInternal) {
+    const isInViolation =
+      isInSubdirectoryOfInternal && !this.isTestFileForDirectory();
+    if (isInViolation) {
       return {
         message:
           'File {{filePath}} is in a subdirectory of an internal directory which is not allowed',
         data: { filePath: this.filePath },
       };
     }
+  }
+
+  isTestFileForDirectory() {
+    const [parentDirectory, directory, filename] = this.filePath
+      .split('/')
+      .slice(-3);
+    const [preExtension] = filename.split('.').slice(-2);
+    const isTestFileForDirectory =
+      parentDirectory === 'internal' &&
+      directory === '__tests__' &&
+      preExtension === 'test';
+    return isTestFileForDirectory;
   }
 
   sourceIsDirectlyUnderInternal() {
@@ -84,7 +99,7 @@ class ViolationFinder {
   }
 
   getViolationIfNotImportingInternalRelatively() {
-    const isLocalRelativeImport = /\.\/[^\/]+$/.test(this.importPath);
+    const isLocalRelativeImport = /\.\/[^/]+$/.test(this.importPath);
     if (!isLocalRelativeImport) {
       return {
         message:

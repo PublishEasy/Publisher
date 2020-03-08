@@ -3,7 +3,7 @@ const common = {
   globals: {
     'ts-jest': {
       tsConfig: 'tsconfig.json',
-      // Disables type checking the tests
+      // Disables type checking the tests, as we typecheck ourselves and this increases speed a lot
       isolatedModules: true,
     },
   },

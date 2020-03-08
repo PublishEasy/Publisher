@@ -1,7 +1,11 @@
-export interface Router {
-  addMiddleware: (middleware: Middleware[]) => void;
-  addGETRoute: (routePattern: string, routeHandler: RouteHandler) => void;
-}
+type Route = { pathPattern: string; routeHandler: RouteHandler };
+
+export type RouterSpec = {
+  middleware: Middleware[];
+  routesByMethod: {
+    get: Route[];
+  };
+};
 
 export type Middleware = (
   req: Request,
