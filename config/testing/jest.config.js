@@ -1,4 +1,3 @@
-/* eslint-disable */
 const common = {
   globals: {
     'ts-jest': {

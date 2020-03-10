@@ -1,4 +1,3 @@
-/* eslint-disable */
 module.exports = {
   create: function onlyParentImportFileYouAreTesting(context) {
     return {

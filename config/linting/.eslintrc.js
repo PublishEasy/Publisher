@@ -45,6 +45,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:react/recommended',
     'plugin:jsx-a11y/strict',
   ],
@@ -59,8 +60,26 @@ module.exports = {
       version: 'detect',
     },
   },
+
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
+    project: './tsconfig.json',
   },
+  overrides: [
+    {
+      files: ['*.js'],
+      rules: {
+        '@typescript-eslint/explicit-function-return-type': 'off',
+      },
+      env: {
+        commonjs: true,
+      },
+      parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: 'module',
+        project: undefined,
+      },
+    },
+  ],
 };

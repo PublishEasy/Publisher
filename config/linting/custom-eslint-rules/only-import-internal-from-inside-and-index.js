@@ -1,5 +1,3 @@
-/* eslint-env commonjs */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 module.exports = {
   create: function onlyImportInternalFromInsideAndIndex(context) {
     return {
@@ -42,7 +40,7 @@ class ViolationFinder {
     const isInSubdirectoryOfInternal =
       this.sourceIsInInternal() && !this.sourceIsDirectlyUnderInternal();
     const isInViolation =
-      isInSubdirectoryOfInternal && !this.isTestFileForDirectory();
+      isInSubdirectoryOfInternal && !this.isInternalTestFile();
     if (isInViolation) {
       return {
         message:
@@ -52,11 +50,14 @@ class ViolationFinder {
     }
   }
 
-  isTestFileForDirectory() {
+  isInternalTestFile() {
+    const lastThreeElements = -3;
     const [parentDirectory, directory, filename] = this.filePath
       .split('/')
-      .slice(-3);
-    const [preExtension] = filename.split('.').slice(-2);
+      .slice(lastThreeElements);
+    if (!filename) return false;
+    const lastTwoElements = -2;
+    const [preExtension] = filename.split('.').slice(lastTwoElements);
     const isTestFileForDirectory =
       parentDirectory === 'internal' &&
       directory === '__tests__' &&
@@ -65,20 +66,17 @@ class ViolationFinder {
   }
 
   sourceIsDirectlyUnderInternal() {
-    const lastTwoPartsOfPath = this.filePath.split('/').slice(-2);
-    const parentIsInternal = lastTwoPartsOfPath[0] === 'internal';
-    return parentIsInternal;
+    const [parentDirectory] = this.filePath.split('/').slice(-2);
+    return parentDirectory === 'internal';
   }
 
   getAnyImportFromInternalViolation() {
-    if (this.sourceIsInInternal()) {
-      let violation = undefined;
-      if (this.isInternalDependenciesFile()) {
-        violation = this.getViolationIfIsAbsoluteImport();
-      } else {
-        violation = this.getViolationIfNotImportingInternalRelatively();
-      }
-      return violation;
+    if (this.isInternalDependenciesFile()) {
+      return this.getAnyRelativeImportViolation();
+    } else if (this.isInternalTestFile()) {
+      return this.getAnyNonTestHelperViolation();
+    } else if (this.sourceIsDirectlyUnderInternal()) {
+      return this.getAnyViolationOfLocalRelativeImport();
     }
   }
 
@@ -86,7 +84,20 @@ class ViolationFinder {
     return this.filePath.endsWith('/internal/dependencies.ts');
   }
 
-  getViolationIfIsAbsoluteImport() {
+  getAnyNonTestHelperViolation() {
+    const isRelativeImportToHelpersPattern = new RegExp(
+      String.raw`^\./helpers/[^/]+$`,
+    );
+    const isAllowed =
+      isRelativeImportToHelpersPattern.test(this.importPath) ||
+      (this.importPath.startsWith('../') &&
+        this.importPath.split('/').length === 2);
+    if (!isAllowed) {
+      return {};
+    }
+  }
+
+  getAnyRelativeImportViolation() {
     const isRelativeImport =
       this.importPath.startsWith('./') || this.importPath.startsWith('..');
     if (isRelativeImport) {
@@ -98,8 +109,9 @@ class ViolationFinder {
     }
   }
 
-  getViolationIfNotImportingInternalRelatively() {
+  getAnyViolationOfLocalRelativeImport() {
     const isLocalRelativeImport = /\.\/[^/]+$/.test(this.importPath);
+
     if (!isLocalRelativeImport) {
       return {
         message:
@@ -146,6 +158,6 @@ class ViolationFinder {
     return this.fileIsInInternalDirectory(this.importPath);
   }
   fileIsInInternalDirectory(filePath) {
-    return /\/internal\//.test(filePath);
+    return filePath.includes('/internal/');
   }
 }

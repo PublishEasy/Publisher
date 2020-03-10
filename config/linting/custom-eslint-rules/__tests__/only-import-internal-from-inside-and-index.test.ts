@@ -103,6 +103,14 @@ describe('only-import-internal-from-inside-and-index eslint rule', () => {
           importPath: '../a.txt',
         },
       },
+      {
+        description:
+          'importing from same directory when in internal test directory',
+        parameters: {
+          currentFilePath: `${pathToInternal}/__tests__/a.ts`,
+          importPath: './a.txt',
+        },
+      },
     ];
 
     testCases.forEach(({ description, parameters }) =>
@@ -146,6 +154,14 @@ describe('only-import-internal-from-inside-and-index eslint rule', () => {
         parameters: {
           currentFilePath: `${pathToInternal}/__tests__/a.test.ts`,
           importPath: '../a.ts',
+        },
+      },
+      {
+        description:
+          'importing test helper function inside internal test directory',
+        parameters: {
+          currentFilePath: `${pathToInternal}/__tests__/a.test.ts`,
+          importPath: './helpers/a.ts',
         },
       },
     ];

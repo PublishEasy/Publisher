@@ -1,6 +1,5 @@
-import createTestRequester from 'supertest';
-
 import { ProductionWebServer } from '../production-web-server';
+import { HTTPAsserter } from './helpers/http-asserter';
 
 describe('ProductionWebServer', () => {
   it.skip('calls a wildcard get handler for `/`', done => {
@@ -8,7 +7,7 @@ describe('ProductionWebServer', () => {
     // const handlerMock = jest
     //   .fn()
     //   .mockImplementation((req, res) => res.sendStatus(200));
-    createTestRequester(server.exposeToInternetOnPort(12345))
+    new HTTPAsserter(server.exposeToInternetOnPort(12345))
       .get('/')
       .expect(200, done);
   });
