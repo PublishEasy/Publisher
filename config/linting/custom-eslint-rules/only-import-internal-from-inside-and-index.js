@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+const _ = require('lodash');
+
 module.exports = {
   create: function onlyImportInternalFromInsideAndIndex(context) {
     return {
@@ -23,84 +26,86 @@ module.exports = {
 
 class ViolationFinder {
   constructor({ filePath, importPath }) {
+    this.currentPathParser = new PathParser(filePath);
+    this.importPathParser = new PathParser(importPath);
     this.filePath = filePath;
     this.importPath = importPath;
   }
 
   getViolationIfAny() {
     const violations = [];
-    violations.push(this.getAnySubdirectoryOfInternalViolation());
-    violations.push(this.getAnyImportFromInternalViolation());
-    violations.push(this.getAnyImportInternalFromExternalViolation());
+    if (this.currentFileInSubdirectoryOfInternal()) {
+      violations.push(this.getAnyInternalSubdirectoryViolations());
+    } else if (
+      this.currentPathParser.directAncestorsAre([PathParser.internalDirectory])
+    ) {
+      violations.push(this.getAnyDirectInternalViolations());
+    } else if (this.currentPathParser.isExternal()) {
+      violations.push(this.getAnyExternalViolations());
+    }
     const violationIfAny = violations.find(x => x !== undefined);
     return violationIfAny;
   }
 
-  getAnySubdirectoryOfInternalViolation() {
-    const isInSubdirectoryOfInternal =
-      this.sourceIsInInternal() && !this.sourceIsDirectlyUnderInternal();
-    const isInViolation =
-      isInSubdirectoryOfInternal && !this.isInternalTestFile();
-    if (isInViolation) {
+  currentFileInSubdirectoryOfInternal() {
+    return (
+      this.currentPathParser.hasAncestor(PathParser.internalDirectory) &&
+      !this.currentPathParser.directAncestorsAre(PathParser.internalDirectory)
+    );
+  }
+
+  getAnyInternalSubdirectoryViolations() {
+    if (this.isInternalTestFile()) {
+      return this.getAnyTestFileViolations();
+    } else if (this.isTestHelperFile()) {
+      return this.getAnyTestHelperViolations();
+    } else {
       return {
         message:
-          'File {{filePath}} is in a subdirectory of an internal directory which is not allowed',
+          'File {{filePath}} is in a generic subdirectory of an internal directory which is not allowed',
         data: { filePath: this.filePath },
       };
     }
   }
 
   isInternalTestFile() {
-    const lastThreeElements = -3;
-    const [parentDirectory, directory, filename] = this.filePath
-      .split('/')
-      .slice(lastThreeElements);
-    if (!filename) return false;
-    const lastTwoElements = -2;
-    const [preExtension] = filename.split('.').slice(lastTwoElements);
-    const isTestFileForDirectory =
-      parentDirectory === 'internal' &&
-      directory === '__tests__' &&
-      preExtension === 'test';
-    return isTestFileForDirectory;
+    const correctParents = this.currentPathParser.directAncestorsAre([
+      PathParser.internalDirectory,
+      PathParser.testDirectory,
+    ]);
+    return correctParents && this.currentPathParser.isTestFile();
   }
 
-  sourceIsDirectlyUnderInternal() {
-    const [parentDirectory] = this.filePath.split('/').slice(-2);
-    return parentDirectory === 'internal';
-  }
-
-  getAnyImportFromInternalViolation() {
-    if (this.isInternalDependenciesFile()) {
-      return this.getAnyRelativeImportViolation();
-    } else if (this.isInternalTestFile()) {
-      return this.getAnyNonTestHelperViolation();
-    } else if (this.sourceIsDirectlyUnderInternal()) {
-      return this.getAnyViolationOfLocalRelativeImport();
-    }
-  }
-
-  isInternalDependenciesFile() {
-    return this.filePath.endsWith('/internal/dependencies.ts');
-  }
-
-  getAnyNonTestHelperViolation() {
-    const isRelativeImportToHelpersPattern = new RegExp(
-      String.raw`^\./helpers/[^/]+$`,
+  getAnyTestFileViolations() {
+    const isImportingHelperRelatively = this.importPathParser.directAncestorsAre(
+      ['.', PathParser.testHelperDirectory],
     );
-    const isAllowed =
-      isRelativeImportToHelpersPattern.test(this.importPath) ||
-      (this.importPath.startsWith('../') &&
-        this.importPath.split('/').length === 2);
+    const expectedFileName = this.currentPathParser.fileBase() + '.ts';
+    const isFileWeAreTesting =
+      this.importPathParser.directAncestorsAre('..') &&
+      this.importPathParser.fileName() === expectedFileName;
+    const isAllowed = isImportingHelperRelatively || isFileWeAreTesting;
     if (!isAllowed) {
-      return {};
+      return {
+        message:
+          'You are only allowed to import the file you are testing and any local helper files',
+      };
     }
+  }
+
+  isTestHelperFile() {
+    return false;
+  }
+
+  getAnyDirectInternalViolations() {
+    if (this.currentPathParser.fileName() === PathParser.dependenciesFile) {
+      return this.getAnyRelativeImportViolation();
+    }
+    return this.getAnyViolationOfLocalRelativeImport();
   }
 
   getAnyRelativeImportViolation() {
-    const isRelativeImport =
-      this.importPath.startsWith('./') || this.importPath.startsWith('..');
-    if (isRelativeImport) {
+    if (this.importPathParser.isRelativeImport()) {
       return {
         message:
           'The file {{filePath}} is importing {{importPath}} which is a relative import. Only absolute imports are allowed from this file',
@@ -110,9 +115,7 @@ class ViolationFinder {
   }
 
   getAnyViolationOfLocalRelativeImport() {
-    const isLocalRelativeImport = /\.\/[^/]+$/.test(this.importPath);
-
-    if (!isLocalRelativeImport) {
+    if (!this.importPathParser.directAncestorsAre('.')) {
       return {
         message:
           'File {{filePath}} is importing {{importPath}} from within internal directory where it is only allowed to relatively import other files in that internal directory',
@@ -121,11 +124,10 @@ class ViolationFinder {
     }
   }
 
-  getAnyImportInternalFromExternalViolation() {
+  getAnyExternalViolations() {
     const isInViolation =
-      this.isImportingFromInternalDirectory() &&
-      !this.sourceIsInInternal() &&
-      !this.isIndexFileImportingOwnInternal();
+      this.importPathParser.hasAncestor(PathParser.internalDirectory) &&
+      !this.isIndexDoingOkayImport();
     if (isInViolation) {
       return {
         message:
@@ -135,29 +137,71 @@ class ViolationFinder {
     }
   }
 
-  isIndexFileImportingOwnInternal() {
-    return this.isIndexFile() && this.isImportingDirectInternalChild();
+  isIndexDoingOkayImport() {
+    const isImportingDirectInternalChild = this.importPathParser.directAncestorsAre(
+      '.',
+      PathParser.internalDirectory,
+    );
+    return (
+      this.currentPathParser.isIndexFile() && isImportingDirectInternalChild
+    );
+  }
+}
+
+class PathParser {
+  static internalDirectory = 'internal';
+  static testDirectory = '__tests__';
+  static testHelperDirectory = 'helpers';
+  static dependenciesFile = 'dependencies.ts';
+
+  constructor(path) {
+    this.path = path;
+  }
+
+  getPath() {
+    return this.path;
+  }
+
+  fileName() {
+    return this.__getLastPartsOfPath(1)[0];
+  }
+
+  fileBase() {
+    return this.fileName().split('.')[0];
+  }
+
+  directAncestorsAre(expectedParents, ...rest) {
+    if (typeof expectedParents === 'string')
+      expectedParents = [expectedParents];
+    if (rest) expectedParents = expectedParents.concat(rest);
+    const numParents = expectedParents.length;
+    const pathLength = numParents + 1; // Includes filename
+    const pathParts = this.__getLastPartsOfPath(pathLength);
+    const actualParents = pathParts.slice(0, -1);
+    return _.isEqual(expectedParents, actualParents);
+  }
+
+  hasAncestor(expectedAncestor) {
+    return this.path.includes(`/${expectedAncestor}`);
+  }
+
+  isExternal() {
+    return !this.hasAncestor(PathParser.internalDirectory);
   }
 
   isIndexFile() {
-    return this.filePath.endsWith('/index.ts');
+    return this.fileName() === 'index.ts';
   }
 
-  isImportingDirectInternalChild() {
-    const directImportInternalPattern = new RegExp(
-      String.raw`^\./internal/[^/]+$`,
-    );
-    return directImportInternalPattern.test(this.importPath);
+  isRelativeImport() {
+    return this.path.startsWith('./') || this.path.startsWith('../');
   }
 
-  sourceIsInInternal() {
-    return this.fileIsInInternalDirectory(this.filePath);
+  isTestFile() {
+    return this.fileName().endsWith('.test.ts');
   }
 
-  isImportingFromInternalDirectory() {
-    return this.fileIsInInternalDirectory(this.importPath);
-  }
-  fileIsInInternalDirectory(filePath) {
-    return filePath.includes('/internal/');
+  __getLastPartsOfPath(numPartsOfPath) {
+    return this.path.split('/').slice(-1 * numPartsOfPath);
   }
 }
