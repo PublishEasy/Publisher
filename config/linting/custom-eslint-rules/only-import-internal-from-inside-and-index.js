@@ -6,6 +6,7 @@ const pathNames = {
   testHelperDirectory: 'helpers',
   dependenciesFile: 'dependencies.ts',
   internalDirectory: 'internal',
+  srcDirectory: 'src',
 };
 
 module.exports = {
@@ -74,21 +75,21 @@ class ViolationFinder {
   }
 
   isInternalTestFile() {
-    const correctParents = this.currentPathParser.directAncestorsAre([
+    const ancestorsAreCorrect = this.currentPathParser.directAncestorsAre([
       pathNames.internalDirectory,
       pathNames.testDirectory,
     ]);
-    return correctParents && this.currentPathParser.isTestFile();
+    return ancestorsAreCorrect && this.currentPathParser.isTestFile();
   }
 
   getAnyTestFileViolations() {
     const isImportingHelperRelatively = this.importPathParser.directAncestorsAre(
       ['.', pathNames.testHelperDirectory],
     );
-    const expectedFileName = this.currentPathParser.fileBase() + '.ts';
+    const fileNamesMatch =
+      this.importPathParser.fileBase() === this.currentPathParser.fileBase();
     const isFileWeAreTesting =
-      this.importPathParser.directAncestorsAre('..') &&
-      this.importPathParser.fileName() === expectedFileName;
+      this.importPathParser.directAncestorsAre('..') && fileNamesMatch;
     const isAllowed = isImportingHelperRelatively || isFileWeAreTesting;
     if (!isAllowed) {
       return 'You are only allowed to import the file you are testing and any local helper files';
@@ -96,7 +97,19 @@ class ViolationFinder {
   }
 
   isTestHelperFile() {
-    return false;
+    const ancestorsAreCorrect = this.currentPathParser.directAncestorsAre([
+      pathNames.internalDirectory,
+      pathNames.testDirectory,
+      pathNames.testHelperDirectory,
+    ]);
+    return ancestorsAreCorrect;
+  }
+
+  getAnyTestHelperViolations() {
+    const isThirdPartyImport = this.importPathParser.isThirdPartyImport();
+    if (!isThirdPartyImport) {
+      return 'You are only allowed to do third party imports from a test helper file';
+    }
   }
 
   getAnyDirectInternalViolations() {
@@ -107,7 +120,7 @@ class ViolationFinder {
   }
 
   getAnyRelativeImportViolation() {
-    if (this.importPathParser.isRelativeImport()) {
+    if (this.importPathParser.isRelative()) {
       return 'The file {{filePath}} is importing {{importPath}} which is a relative import. Only absolute imports are allowed from this file';
     }
   }
@@ -143,10 +156,6 @@ class PathParser {
     this.path = path;
   }
 
-  getPath() {
-    return this.path;
-  }
-
   fileName() {
     return this.__getLastPartsOfPath(1)[0];
   }
@@ -157,18 +166,15 @@ class PathParser {
 
   directAncestorsAre(expectedAncestors, ...rest) {
     expectedAncestors = diverseArgumentsToArray(expectedAncestors, rest);
-    const actualAncestors = this.getActualSameLengthAncestors(
-      expectedAncestors,
-    );
+    const actualAncestors = this.getXAncestors(expectedAncestors.length);
     return areDeepEqual(expectedAncestors, actualAncestors);
   }
 
-  getActualSameLengthAncestors(expectedAncestors) {
-    const numAncestors = expectedAncestors.length;
-    const pathLength = numAncestors + 1; // Includes filename
-    const pathParts = this.__getLastPartsOfPath(pathLength);
-    const actualAncestors = pathParts.slice(0, -1);
-    return actualAncestors;
+  getXAncestors(numAncestors) {
+    const lengthWithFilename = numAncestors + 1;
+    const pathParts = this.__getLastPartsOfPath(lengthWithFilename);
+    const partsWithoutFilename = pathParts.slice(0, -1);
+    return partsWithoutFilename;
   }
 
   hasAncestor(expectedAncestor) {
@@ -183,8 +189,20 @@ class PathParser {
     return this.fileName() === 'index.ts';
   }
 
-  isRelativeImport() {
+  isRelative() {
     return this.path.startsWith('./') || this.path.startsWith('../');
+  }
+
+  isAbsolute() {
+    return !this.isRelative();
+  }
+
+  isSrcAbsoluteImport() {
+    return this.path.startsWith(pathNames.srcDirectory);
+  }
+
+  isThirdPartyImport() {
+    return this.isAbsolute() && !this.isSrcAbsoluteImport();
   }
 
   isTestFile() {

@@ -126,6 +126,15 @@ const internalTestDirectoryPassingTests: TestCase[] = [
   },
   {
     description:
+      'importing file we are testing from internal test without specifying import extension',
+    parameters: {
+      currentFilePath: `${pathToTestDirectory}/a.unit.test.ts`,
+      importPath: '../a',
+    },
+  },
+
+  {
+    description:
       'importing test helper function inside internal test directory',
     parameters: {
       currentFilePath: `${pathToTestDirectory}/a.test.ts`,
@@ -178,13 +187,37 @@ const internalTestDirectoryErrorTests: TestCase[] = [
 ];
 
 const testHelperFilesPassingTests: TestCase[] = [
-  // {
-  //   description: 'non-src absolute imports from test helper file',
-  //   parameters: {
-  //     currentFilePath: `${pathToTestDirectory}/helpers/a.ts`,
-  //     importPath: 'lodash',
-  //   },
-  // },
+  {
+    description: 'third party imports from test helper file',
+    parameters: {
+      currentFilePath: `${pathToTestDirectory}/helpers/a.ts`,
+      importPath: 'lodash',
+    },
+  },
+];
+
+const testHelperFilesErrorTests: TestCase[] = [
+  {
+    description: 'Absolute src imports from test helper file',
+    parameters: {
+      currentFilePath: `${pathToTestDirectory}/helpers/a.ts`,
+      importPath: 'src/a/b.ts',
+    },
+  },
+  {
+    description: 'relative imports from test helper file',
+    parameters: {
+      currentFilePath: `${pathToTestDirectory}/helpers/a.ts`,
+      importPath: './c.ts',
+    },
+  },
+  {
+    description: 'relative parent imports from test helper file',
+    parameters: {
+      currentFilePath: `${pathToTestDirectory}/helpers/a.ts`,
+      importPath: '../c.ts',
+    },
+  },
 ];
 const subdirectoryOfInternalFailingTests: TestCase[] = [
   {
@@ -231,6 +264,7 @@ describe('only-import-internal-from-inside-and-index eslint rule', () => {
       ...internalFileErrorTests,
       ...internalTestDirectoryErrorTests,
       ...subdirectoryOfInternalFailingTests,
+      ...testHelperFilesErrorTests,
     ];
     errorTests.forEach(({ description, parameters }) =>
       it(description, () => {

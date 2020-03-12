@@ -24,7 +24,7 @@ module.exports = {
 };
 
 function isInTestDirectory(context) {
-  return /__tests__\/[^\/]+$/.test(context.getFilename());
+  return /__tests__\/[^/]+$/.test(context.getFilename());
 }
 
 function baseNamesEqual(path1, path2) {

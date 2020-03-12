@@ -36,50 +36,64 @@ const ourCustomEnabledRules = {
 const disabledRules = {
   '@typescript-eslint/no-use-before-define': 'off',
 };
+const javascriptCompatibleRules = {
+  ...extraEnabledRules,
+  ...disabledRules,
+  ...ourCustomEnabledRules,
+};
+
+const allRules = {
+  ...javascriptCompatibleRules,
+};
+
+const javascriptCompatibleConfigs = [
+  'eslint:recommended',
+  'plugin:react/recommended',
+  'plugin:jsx-a11y/strict',
+];
+
+const allConfigs = [
+  ...javascriptCompatibleConfigs,
+  'plugin:@typescript-eslint/eslint-recommended',
+  'plugin:@typescript-eslint/recommended',
+  'plugin:@typescript-eslint/recommended-requiring-type-checking',
+];
 
 module.exports = {
   root: true,
-  parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint', 'import', 'react', 'jsx-a11y', 'react-hooks'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    'plugin:react/recommended',
-    'plugin:jsx-a11y/strict',
-  ],
-  rules: {
-    ...extraEnabledRules,
-    ...disabledRules,
-    ...ourCustomEnabledRules,
-  },
   settings: {
     'import/extensions': ['ts', 'tsx'],
     react: {
       version: 'detect',
     },
   },
-
-  parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: 'module',
-    project: './tsconfig.json',
-  },
   overrides: [
     {
       files: ['*.js'],
-      rules: {
-        '@typescript-eslint/explicit-function-return-type': 'off',
-      },
       env: {
         commonjs: true,
+        'shared-node-browser': true,
+      },
+      extends: javascriptCompatibleConfigs,
+      rules: javascriptCompatibleRules,
+      parserOptions: {
+        ecmaVersion: 2020,
+      },
+    },
+    {
+      files: ['*.ts', '*.tsx'],
+      parser: '@typescript-eslint/parser',
+      env: {
+        'shared-node-browser': true,
       },
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: 'module',
-        project: undefined,
+        project: './tsconfig.json',
       },
+      extends: allConfigs,
+      rules: allRules,
     },
   ],
 };

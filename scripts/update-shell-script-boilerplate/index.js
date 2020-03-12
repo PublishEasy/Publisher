@@ -1,5 +1,7 @@
-const path = require('path');
+// This is a dev only script so we can import a dev dependency
+// eslint-disable-next-line import/no-extraneous-dependencies
 const glob = require('glob');
+const path = require('path');
 const fs = require('fs');
 const ROOT_DIRECTORY_PATH = require('./get-root-path');
 
@@ -39,7 +41,7 @@ function getUpdatedBoilerplateLines(lines, filePath) {
   const {
     boilerplateStartIndex,
     boilerplateEndIndex,
-  } = findBoilerplateLineIndices(lines);
+  } = findBoilerplateLineIndices(lines, filePath);
   const endThatExcludesStartIndicator = boilerplateStartIndex;
   const startThatExcludesEndIndicator = boilerplateEndIndex + 1;
   return [
@@ -74,7 +76,7 @@ function assertCorrectFileStart(lines, filePath) {
   }
 }
 
-function findBoilerplateLineIndices(lines) {
+function findBoilerplateLineIndices(lines, filePath) {
   const boilerplateStartIndex = lines.findIndex(x => x === OLD_START_INDICATOR);
   const boilerplateEndIndex = lines.findIndex(x => x === OLD_END_INDICATOR);
   if (boilerplateStartIndex === -1)
