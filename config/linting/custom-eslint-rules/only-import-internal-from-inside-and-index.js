@@ -1,5 +1,12 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const _ = require('lodash');
+const { isEqual: areDeepEqual } = require('lodash');
+
+const pathNames = {
+  testDirectory: '__tests__',
+  testHelperDirectory: 'helpers',
+  dependenciesFile: 'dependencies.ts',
+  internalDirectory: 'internal',
+};
 
 module.exports = {
   create: function onlyImportInternalFromInsideAndIndex(context) {
@@ -16,7 +23,11 @@ module.exports = {
         if (violationIfAny) {
           context.report({
             node,
-            ...violationIfAny,
+            data: {
+              filePath,
+              importPath,
+            },
+            message: violationIfAny,
           });
         }
       },
@@ -28,8 +39,6 @@ class ViolationFinder {
   constructor({ filePath, importPath }) {
     this.currentPathParser = new PathParser(filePath);
     this.importPathParser = new PathParser(importPath);
-    this.filePath = filePath;
-    this.importPath = importPath;
   }
 
   getViolationIfAny() {
@@ -37,7 +46,7 @@ class ViolationFinder {
     if (this.currentFileInSubdirectoryOfInternal()) {
       violations.push(this.getAnyInternalSubdirectoryViolations());
     } else if (
-      this.currentPathParser.directAncestorsAre([PathParser.internalDirectory])
+      this.currentPathParser.directAncestorsAre([pathNames.internalDirectory])
     ) {
       violations.push(this.getAnyDirectInternalViolations());
     } else if (this.currentPathParser.isExternal()) {
@@ -49,8 +58,8 @@ class ViolationFinder {
 
   currentFileInSubdirectoryOfInternal() {
     return (
-      this.currentPathParser.hasAncestor(PathParser.internalDirectory) &&
-      !this.currentPathParser.directAncestorsAre(PathParser.internalDirectory)
+      this.currentPathParser.hasAncestor(pathNames.internalDirectory) &&
+      !this.currentPathParser.directAncestorsAre(pathNames.internalDirectory)
     );
   }
 
@@ -60,25 +69,21 @@ class ViolationFinder {
     } else if (this.isTestHelperFile()) {
       return this.getAnyTestHelperViolations();
     } else {
-      return {
-        message:
-          'File {{filePath}} is in a generic subdirectory of an internal directory which is not allowed',
-        data: { filePath: this.filePath },
-      };
+      return 'File {{filePath}} is in a generic subdirectory of an internal directory which is not allowed';
     }
   }
 
   isInternalTestFile() {
     const correctParents = this.currentPathParser.directAncestorsAre([
-      PathParser.internalDirectory,
-      PathParser.testDirectory,
+      pathNames.internalDirectory,
+      pathNames.testDirectory,
     ]);
     return correctParents && this.currentPathParser.isTestFile();
   }
 
   getAnyTestFileViolations() {
     const isImportingHelperRelatively = this.importPathParser.directAncestorsAre(
-      ['.', PathParser.testHelperDirectory],
+      ['.', pathNames.testHelperDirectory],
     );
     const expectedFileName = this.currentPathParser.fileBase() + '.ts';
     const isFileWeAreTesting =
@@ -86,10 +91,7 @@ class ViolationFinder {
       this.importPathParser.fileName() === expectedFileName;
     const isAllowed = isImportingHelperRelatively || isFileWeAreTesting;
     if (!isAllowed) {
-      return {
-        message:
-          'You are only allowed to import the file you are testing and any local helper files',
-      };
+      return 'You are only allowed to import the file you are testing and any local helper files';
     }
   }
 
@@ -98,7 +100,7 @@ class ViolationFinder {
   }
 
   getAnyDirectInternalViolations() {
-    if (this.currentPathParser.fileName() === PathParser.dependenciesFile) {
+    if (this.currentPathParser.fileName() === pathNames.dependenciesFile) {
       return this.getAnyRelativeImportViolation();
     }
     return this.getAnyViolationOfLocalRelativeImport();
@@ -106,41 +108,29 @@ class ViolationFinder {
 
   getAnyRelativeImportViolation() {
     if (this.importPathParser.isRelativeImport()) {
-      return {
-        message:
-          'The file {{filePath}} is importing {{importPath}} which is a relative import. Only absolute imports are allowed from this file',
-        data: { filePath: this.filePath, importPath: this.importPath },
-      };
+      return 'The file {{filePath}} is importing {{importPath}} which is a relative import. Only absolute imports are allowed from this file';
     }
   }
 
   getAnyViolationOfLocalRelativeImport() {
     if (!this.importPathParser.directAncestorsAre('.')) {
-      return {
-        message:
-          'File {{filePath}} is importing {{importPath}} from within internal directory where it is only allowed to relatively import other files in that internal directory',
-        data: { filePath: this.filePath, importPath: this.importPath },
-      };
+      return 'File {{filePath}} is importing {{importPath}} from within internal directory where it is only allowed to relatively import other files in that internal directory';
     }
   }
 
   getAnyExternalViolations() {
     const isInViolation =
-      this.importPathParser.hasAncestor(PathParser.internalDirectory) &&
+      this.importPathParser.hasAncestor(pathNames.internalDirectory) &&
       !this.isIndexDoingOkayImport();
     if (isInViolation) {
-      return {
-        message:
-          'File {{filePath}} is importing {{importPath}} which is in an internal directory. Only direct parent index files are allowed to do this',
-        data: { filePath: this.filePath, importPath: this.importPath },
-      };
+      return 'File {{filePath}} is importing {{importPath}} which is in an internal directory. Only direct parent index files are allowed to do this';
     }
   }
 
   isIndexDoingOkayImport() {
     const isImportingDirectInternalChild = this.importPathParser.directAncestorsAre(
       '.',
-      PathParser.internalDirectory,
+      pathNames.internalDirectory,
     );
     return (
       this.currentPathParser.isIndexFile() && isImportingDirectInternalChild
@@ -149,11 +139,6 @@ class ViolationFinder {
 }
 
 class PathParser {
-  static internalDirectory = 'internal';
-  static testDirectory = '__tests__';
-  static testHelperDirectory = 'helpers';
-  static dependenciesFile = 'dependencies.ts';
-
   constructor(path) {
     this.path = path;
   }
@@ -170,15 +155,20 @@ class PathParser {
     return this.fileName().split('.')[0];
   }
 
-  directAncestorsAre(expectedParents, ...rest) {
-    if (typeof expectedParents === 'string')
-      expectedParents = [expectedParents];
-    if (rest) expectedParents = expectedParents.concat(rest);
-    const numParents = expectedParents.length;
-    const pathLength = numParents + 1; // Includes filename
+  directAncestorsAre(expectedAncestors, ...rest) {
+    expectedAncestors = diverseArgumentsToArray(expectedAncestors, rest);
+    const actualAncestors = this.getActualSameLengthAncestors(
+      expectedAncestors,
+    );
+    return areDeepEqual(expectedAncestors, actualAncestors);
+  }
+
+  getActualSameLengthAncestors(expectedAncestors) {
+    const numAncestors = expectedAncestors.length;
+    const pathLength = numAncestors + 1; // Includes filename
     const pathParts = this.__getLastPartsOfPath(pathLength);
-    const actualParents = pathParts.slice(0, -1);
-    return _.isEqual(expectedParents, actualParents);
+    const actualAncestors = pathParts.slice(0, -1);
+    return actualAncestors;
   }
 
   hasAncestor(expectedAncestor) {
@@ -186,7 +176,7 @@ class PathParser {
   }
 
   isExternal() {
-    return !this.hasAncestor(PathParser.internalDirectory);
+    return !this.hasAncestor(pathNames.internalDirectory);
   }
 
   isIndexFile() {
@@ -204,4 +194,10 @@ class PathParser {
   __getLastPartsOfPath(numPartsOfPath) {
     return this.path.split('/').slice(-1 * numPartsOfPath);
   }
+}
+
+function diverseArgumentsToArray(expectedParents, rest) {
+  if (typeof expectedParents === 'string') expectedParents = [expectedParents];
+  if (rest) expectedParents = expectedParents.concat(rest);
+  return expectedParents;
 }
