@@ -25,6 +25,10 @@ run_command_in_docker_with_colors_ctrl_c_capabilitiies_and_updating_file_system 
     docker run --rm -it --mount "type=bind,source=$(pwd),target=/app,consistency=consistent" publisher-base "$@"
 }
 
+run_command_in_docker_with_colors () {
+    docker run --rm -t publisher-base "$@"
+}
+
 run_command_in_docker () {
     docker run --rm publisher-base "$@"
 }
@@ -42,4 +46,4 @@ build_docker_image () {
 
 build_docker_image
 
-run_command_in_docker $DIRECTORY/pre-configured-commands/jest.sh
+run_command_in_docker_with_colors $DIRECTORY/pre-configured-commands/jest.sh
