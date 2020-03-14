@@ -1,4 +1,4 @@
-const PathParser = require('./path-parser');
+const { FilePath, ImportPath } = require('./paths');
 
 module.exports = {
   meta: {
@@ -12,9 +12,12 @@ module.exports = {
   create: function onlyParentImportFileYouAreTesting(context) {
     return {
       ImportDeclaration(node) {
-        const importPath = node.source.value;
-        const filePath = context.getFilename();
-        const violation = getAnyViolation({ filePath, importPath });
+        const importPathString = node.source.value;
+        const currentPathString = context.getFilename();
+        const violation = getAnyViolation({
+          currentPathString,
+          importPathString,
+        });
         if (violation) {
           context.report({
             node,
@@ -25,26 +28,15 @@ module.exports = {
     };
   },
 };
-function getAnyViolation({ filePath, importPath }) {
-  const currentPathParser = new PathParser(filePath);
-  const importPathParser = new PathParser(importPath);
-  if (importPathParser.isParentRelative()) {
+function getAnyViolation({ currentPathString, importPathString }) {
+  const currentPath = new FilePath(currentPathString);
+  const importPath = new ImportPath(importPathString);
+  if (importPath.goesThroughParent()) {
     const isAllowed =
-      isTestFile(currentPathParser) && isImportingFileWeAreTesting();
-    const isInViolation = !isAllowed;
-    if (isInViolation) {
+      currentPath.isTestFile() &&
+      importPath.isSourceFileForTestPath(currentPath);
+    if (!isAllowed) {
       return 'invalidParentImport';
     }
-  }
-  function isTestFile() {
-    return (
-      currentPathParser.hasTestExtension() &&
-      currentPathParser.directAncestorsAre(PathParser.names.testDirectory)
-    );
-  }
-  function isImportingFileWeAreTesting() {
-    const fileNamesMatch =
-      importPathParser.fileBase() === currentPathParser.fileBase();
-    return importPathParser.allAncestorsAre('..') && fileNamesMatch;
   }
 }

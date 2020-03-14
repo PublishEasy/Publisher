@@ -2,27 +2,35 @@ const { isEqual: areDeepEqual } = require('lodash');
 
 class PathParser {
   constructor(path) {
-    this.path = path;
+    if (!path) throw new Error('PathParser needs a path');
+    this.__parts = path.split('/');
   }
 
   fileName() {
-    return this.__getLastPartsOfPath(1)[0];
+    return this.__parts[this.__parts.length - 1];
   }
 
-  fileBase() {
+  fileNameBase() {
     return this.fileName().split('.')[0];
+  }
+
+  start() {
+    return this.__parts[0];
+  }
+
+  hasAncestor(expectedAncestor) {
+    return this.__parts.includes(expectedAncestor);
   }
 
   directAncestorsAre(expectedAncestors, ...rest) {
     expectedAncestors = diverseArgumentsToArray(expectedAncestors, rest);
-    const actualAncestors = this.getXAncestors(expectedAncestors.length);
+    const actualAncestors = this.__getXAncestors(expectedAncestors.length);
     return areDeepEqual(expectedAncestors, actualAncestors);
   }
 
   allAncestorsAre(expectedAncestors, ...rest) {
     expectedAncestors = diverseArgumentsToArray(expectedAncestors, rest);
-    const pathLength = this.__pathLength();
-    const ancestorLength = pathLength - 1; // pathLength includes filename
+    const ancestorLength = this.__parts.length - 1; // pathLength includes filename
     const expectedNumberAncestorsCorrect =
       ancestorLength === expectedAncestors.length;
     if (expectedNumberAncestorsCorrect) {
@@ -31,65 +39,17 @@ class PathParser {
     return false;
   }
 
-  getXAncestors(numAncestors) {
+  __getXAncestors(numAncestors) {
     const lengthWithFilename = numAncestors + 1;
     const pathParts = this.__getLastPartsOfPath(lengthWithFilename);
     const partsWithoutFilename = pathParts.slice(0, -1);
     return partsWithoutFilename;
   }
 
-  hasAncestor(expectedAncestor) {
-    return this.path.includes(`/${expectedAncestor}`);
-  }
-
-  isExternal() {
-    return !this.hasAncestor(PathParser.names.internalDirectory);
-  }
-
-  isIndexFile() {
-    return this.fileName() === 'index.ts';
-  }
-
-  isRelative() {
-    return this.path.startsWith('./') || this.isParentRelative();
-  }
-
-  isParentRelative() {
-    return this.path.startsWith('../');
-  }
-
-  isAbsolute() {
-    return !this.isRelative();
-  }
-
-  isSrcAbsoluteImport() {
-    return this.path.startsWith(PathParser.names.srcDirectory);
-  }
-
-  isThirdPartyImport() {
-    return this.isAbsolute() && !this.isSrcAbsoluteImport();
-  }
-
-  hasTestExtension() {
-    return this.fileName().endsWith('.test.ts');
-  }
-
   __getLastPartsOfPath(numPartsOfPath) {
-    return this.path.split('/').slice(-1 * numPartsOfPath);
-  }
-
-  __pathLength() {
-    return this.path.split('/').length;
+    return this.__parts.slice(-1 * numPartsOfPath);
   }
 }
-
-PathParser.names = {
-  testDirectory: '__tests__',
-  testHelperDirectory: 'helpers',
-  dependenciesFile: 'dependencies.ts',
-  internalDirectory: 'internal',
-  srcDirectory: 'src',
-};
 
 function diverseArgumentsToArray(expectedParents, rest) {
   if (typeof expectedParents === 'string') expectedParents = [expectedParents];
