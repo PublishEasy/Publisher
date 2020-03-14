@@ -70,7 +70,6 @@ class ViolationFinder {
       return 'invalidSubdirectory';
     }
   }
-
   getAnyTestFileViolation() {
     const isAllowed =
       this.importPath.isTestHelper() ||
@@ -78,12 +77,13 @@ class ViolationFinder {
     if (!isAllowed) {
       return 'testFile';
     }
+    return null;
   }
-
   getAnyTestHelperViolation() {
     if (this.importPath.isNotThirdParty()) {
       return 'testHelperFile';
     }
+    return null;
   }
 
   getAnyTopLevelInternalViolation() {
@@ -94,6 +94,7 @@ class ViolationFinder {
     } else if (this.importPath.isNotLocalRelative()) {
       return 'localRelativeImport';
     }
+    return null;
   }
 
   getAnyExternalViolation() {
@@ -102,8 +103,8 @@ class ViolationFinder {
     if (isInViolation) {
       return 'externalFile';
     }
+    return null;
   }
-
   isNotIndexFileException() {
     const isIndexFileException =
       this.currentPath.isIndexFile() && this.importPath.isDirectChildInternal();
