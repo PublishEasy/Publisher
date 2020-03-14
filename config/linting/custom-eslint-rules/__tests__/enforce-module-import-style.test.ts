@@ -1,4 +1,4 @@
-import rule from '../only-import-internal-from-inside-and-index';
+import rule from '../enforce-module-import-style';
 import { getRuleNameFromFileName } from './helpers/get-rule-name-from-file-name';
 import { getValidatedRuleType } from './helpers/get-validated-rule-type';
 import { RuleTester } from './helpers/rule-tester';
@@ -127,7 +127,7 @@ const internalFileErrorTests: ErrorTestCaseWithMessageIds[] = [
       currentFilePath: `${pathToInternal}/dependencies.ts`,
       importPath: './c.ts',
     },
-    errorMessageIds: ['relativeImport'],
+    errorMessageIds: ['dependenciesFile'],
   },
   {
     description:
@@ -136,7 +136,7 @@ const internalFileErrorTests: ErrorTestCaseWithMessageIds[] = [
       currentFilePath: `${pathToInternal}/dependencies.ts`,
       importPath: '../../b/c.ts',
     },
-    errorMessageIds: ['relativeImport'],
+    errorMessageIds: ['dependenciesFile'],
   },
 ];
 
@@ -210,6 +210,14 @@ const internalTestDirectoryErrorTests: ErrorTestCaseWithMessageIds[] = [
     parameters: {
       currentFilePath: `${pathToTestDirectory}/a.test.ts`,
       importPath: `../b.ts`,
+    },
+    errorMessageIds: ['testFile'],
+  },
+  {
+    description: 'importing file with same basename but from two levels up',
+    parameters: {
+      currentFilePath: `${pathToTestDirectory}/a.test.ts`,
+      importPath: '../../a.ts',
     },
     errorMessageIds: ['testFile'],
   },

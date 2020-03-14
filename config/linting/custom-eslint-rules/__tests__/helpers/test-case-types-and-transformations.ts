@@ -1,6 +1,6 @@
 import type {
   InvalidTestCase,
-  ValidTestCase
+  ValidTestCase,
 } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 
 export type TestCase = {
@@ -9,7 +9,7 @@ export type TestCase = {
 };
 
 export type ErrorTestCase<MessageIds extends string> = TestCase & {
-  errorMessageIds?: MessageIds[];
+  errorMessageIds: MessageIds[];
 };
 
 export function testCasesToValidRuleTesterCases(
@@ -31,6 +31,6 @@ export function errorTestCasesToInvalidRuleTesterCases<MessageIds extends string
 // ${description}
 import a from '${parameters.importPath}';`,
     filename: parameters.currentFilePath,
-    errors: errorMessageIds || (1 as any),
+    errors: errorMessageIds.map(id => ({messageId: id})),
   }));
 }

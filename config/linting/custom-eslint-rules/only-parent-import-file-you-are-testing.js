@@ -1,39 +1,50 @@
+const PathParser = require('./path-parser');
+
 module.exports = {
+  meta: {
+    messages: {
+      invalidParentImport:
+        'You may only use parent relative imports when importing the file you are testing from within a test',
+    },
+    type: 'problem',
+    schema: [],
+  },
   create: function onlyParentImportFileYouAreTesting(context) {
     return {
       ImportDeclaration(node) {
         const importPath = node.source.value;
-        const isRelativeParentImport = importPath.startsWith('../');
-        const importLength = importPath.split('/').length;
-        const isInViolation =
-          isRelativeParentImport &&
-          (!isInTestDirectory(context) ||
-            importLength != 2 ||
-            !baseNamesEqual(importPath, context.getFilename()));
-        if (isInViolation) {
+        const filePath = context.getFilename();
+        const violation = getAnyViolation({ filePath, importPath });
+        if (violation) {
           context.report({
             node,
-            message:
-              'You may only use parent relative imports when importing from __tests__ the file above you with the same basename. Path {{importPath}} violates this',
-            data: { importPath },
+            message: violation,
           });
         }
       },
     };
   },
 };
-
-function isInTestDirectory(context) {
-  return /__tests__\/[^/]+$/.test(context.getFilename());
-}
-
-function baseNamesEqual(path1, path2) {
-  const [basename1, basename2] = [path1, path2].map(getBasename);
-  return basename1 === basename2;
-}
-
-function getBasename(path) {
-  const [fileName] = path.split('/').slice(-1);
-  const basename = fileName.split('.')[0];
-  return basename;
+function getAnyViolation({ filePath, importPath }) {
+  const currentPathParser = new PathParser(filePath);
+  const importPathParser = new PathParser(importPath);
+  if (importPathParser.isParentRelative()) {
+    const isAllowed =
+      isTestFile(currentPathParser) && isImportingFileWeAreTesting();
+    const isInViolation = !isAllowed;
+    if (isInViolation) {
+      return 'invalidParentImport';
+    }
+  }
+  function isTestFile() {
+    return (
+      currentPathParser.hasTestExtension() &&
+      currentPathParser.directAncestorsAre(PathParser.names.testDirectory)
+    );
+  }
+  function isImportingFileWeAreTesting() {
+    const fileNamesMatch =
+      importPathParser.fileBase() === currentPathParser.fileBase();
+    return importPathParser.allAncestorsAre('..') && fileNamesMatch;
+  }
 }

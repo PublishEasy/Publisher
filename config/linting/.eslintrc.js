@@ -30,7 +30,7 @@ const extraEnabledRules = {
 
 const ourCustomEnabledRules = {
   'only-parent-import-file-you-are-testing': 'error',
-  'only-import-internal-from-inside-and-index': 'error',
+  'enforce-module-import-style': 'error',
 };
 
 const disabledRules = {

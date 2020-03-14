@@ -1,5 +1,3 @@
-import { TSESLint } from '@typescript-eslint/experimental-utils';
-
 export function getValidatedRuleType(
   ruleType: string,
 ): 'problem' | 'suggestion' | 'layout' {
