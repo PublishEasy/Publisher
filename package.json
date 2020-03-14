@@ -4,7 +4,7 @@
   "private": true,
   "husky": {
     "hooks": {
-      "pre-push": "./scripts.test-fast.sh && ./scripts/lint-everything.sh"
+      "pre-push": "./scripts/test-fast.sh && ./scripts/lint-everything.sh"
     }
   },
   "dependencies": {
