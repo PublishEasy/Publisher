@@ -9,6 +9,17 @@ import {
   testCasesToValidRuleTesterCases
 } from './helpers/test-case-types-and-transformations';
 
+const typedRule = {
+  ...rule,
+  meta: {
+    ...rule.meta,
+    type: getValidatedRuleType(rule.meta.type),
+  },
+};
+
+type MessageIds = keyof typeof typedRule['meta']['messages'];
+type ErrorTestCaseWithMessageIds = ErrorTestCase<MessageIds>;
+
 const moduleParentDirectory = 'a';
 const moduleDirectoryName = 'b';
 const modulePath = moduleParentDirectory + '/' + moduleDirectoryName;
@@ -34,13 +45,14 @@ const externalFilePassingTests: TestCase[] = [
     },
   },
 ];
-const externalFileErrorTests: ErrorTestCase[] = [
+const externalFileErrorTests: ErrorTestCaseWithMessageIds[] = [
   {
     description: 'importing internal relatively from outside',
     parameters: {
       currentFilePath: fileOutsideInternal,
       importPath: './internal/b.txt',
     },
+    errorMessageIds: ['externalFile'],
   },
   {
     description: 'importing internal absolutely from outside',
@@ -48,6 +60,7 @@ const externalFileErrorTests: ErrorTestCase[] = [
       currentFilePath: fileOutsideInternal,
       importPath: 'src/internal/b.txt',
     },
+    errorMessageIds: ['externalFile'],
   },
   {
     description: 'importing internal absolutely from relevant index',
@@ -55,6 +68,7 @@ const externalFileErrorTests: ErrorTestCase[] = [
       currentFilePath: indexFile,
       importPath: pathToInternal + '/b.txt',
     },
+    errorMessageIds: ['externalFile'],
   },
   {
     description: 'importing internal relatively from irrelevant index',
@@ -62,6 +76,7 @@ const externalFileErrorTests: ErrorTestCase[] = [
       currentFilePath: `${moduleParentDirectory}/index.ts`,
       importPath: `./${moduleDirectoryName}/internal/b.txt`,
     },
+    errorMessageIds: ['externalFile'],
   },
   {
     description: 'random path near root importing internal',
@@ -69,6 +84,7 @@ const externalFileErrorTests: ErrorTestCase[] = [
       currentFilePath: '/a.txt',
       importPath: pathToInternal + '/b.txt',
     },
+    errorMessageIds: ['externalFile'],
   },
 ];
 
@@ -88,13 +104,14 @@ const internalFilePassingTests: TestCase[] = [
     },
   },
 ];
-const internalFileErrorTests: ErrorTestCase[] = [
+const internalFileErrorTests: ErrorTestCaseWithMessageIds[] = [
   {
     description: 'importing internal absolutely from inside',
     parameters: {
       currentFilePath: fileInsideInternal,
       importPath: pathToInternal + '/b.txt',
     },
+    errorMessageIds: ['localRelativeImport'],
   },
   {
     description: 'importing something external from internal',
@@ -102,6 +119,7 @@ const internalFileErrorTests: ErrorTestCase[] = [
       currentFilePath: fileInsideInternal,
       importPath: 'src/something.txt',
     },
+    errorMessageIds: ['localRelativeImport'],
   },
   {
     description: 'doing local relative import from internal/dependencies.ts',
@@ -109,6 +127,7 @@ const internalFileErrorTests: ErrorTestCase[] = [
       currentFilePath: `${pathToInternal}/dependencies.ts`,
       importPath: './c.ts',
     },
+    errorMessageIds: ['relativeImport'],
   },
   {
     description:
@@ -117,6 +136,7 @@ const internalFileErrorTests: ErrorTestCase[] = [
       currentFilePath: `${pathToInternal}/dependencies.ts`,
       importPath: '../../b/c.ts',
     },
+    errorMessageIds: ['relativeImport'],
   },
 ];
 
@@ -147,7 +167,7 @@ const internalTestDirectoryPassingTests: TestCase[] = [
   },
   // TODO: When we add a global test helper library we should add in test that that's allowed
 ];
-const internalTestDirectoryErrorTests: ErrorTestCase[] = [
+const internalTestDirectoryErrorTests: ErrorTestCaseWithMessageIds[] = [
   {
     description:
       'importing internal with absolute import from a test file belonging to the directory',
@@ -155,6 +175,7 @@ const internalTestDirectoryErrorTests: ErrorTestCase[] = [
       currentFilePath: `${pathToTestDirectory}/a.test.ts`,
       importPath: `${pathToInternal}/a.txt`,
     },
+    errorMessageIds: ['testFile'],
   },
   {
     description:
@@ -163,6 +184,7 @@ const internalTestDirectoryErrorTests: ErrorTestCase[] = [
       currentFilePath: `${pathToTestDirectory}/a.test.ts`,
       importPath: '../../internal/a.txt',
     },
+    errorMessageIds: ['testFile'],
   },
   {
     description:
@@ -171,6 +193,7 @@ const internalTestDirectoryErrorTests: ErrorTestCase[] = [
       currentFilePath: `${pathToTestDirectory}/a.ts`,
       importPath: '../a.txt',
     },
+    errorMessageIds: ['invalidSubdirectory'],
   },
   {
     description:
@@ -179,6 +202,7 @@ const internalTestDirectoryErrorTests: ErrorTestCase[] = [
       currentFilePath: `${pathToTestDirectory}/a.test.ts`,
       importPath: './b.ts',
     },
+    errorMessageIds: ['testFile'],
   },
   {
     description:
@@ -187,6 +211,7 @@ const internalTestDirectoryErrorTests: ErrorTestCase[] = [
       currentFilePath: `${pathToTestDirectory}/a.test.ts`,
       importPath: `../b.ts`,
     },
+    errorMessageIds: ['testFile'],
   },
 ];
 
@@ -200,13 +225,14 @@ const testHelperFilesPassingTests: TestCase[] = [
   },
 ];
 
-const testHelperFilesErrorTests: ErrorTestCase[] = [
+const testHelperFilesErrorTests: ErrorTestCaseWithMessageIds[] = [
   {
     description: 'Absolute src imports from test helper file',
     parameters: {
       currentFilePath: `${pathToTestDirectory}/helpers/a.ts`,
       importPath: 'src/a/b.ts',
     },
+    errorMessageIds: ['testHelperFile'],
   },
   {
     description: 'relative imports from test helper file',
@@ -214,6 +240,7 @@ const testHelperFilesErrorTests: ErrorTestCase[] = [
       currentFilePath: `${pathToTestDirectory}/helpers/a.ts`,
       importPath: './c.ts',
     },
+    errorMessageIds: ['testHelperFile'],
   },
   {
     description: 'relative parent imports from test helper file',
@@ -221,53 +248,53 @@ const testHelperFilesErrorTests: ErrorTestCase[] = [
       currentFilePath: `${pathToTestDirectory}/helpers/a.ts`,
       importPath: '../c.ts',
     },
+    errorMessageIds: ['testHelperFile'],
   },
 ];
-const subdirectoryOfInternalFailingTests: TestCase[] = [
+const subdirectoryOfInternalFailingTests: ErrorTestCaseWithMessageIds[] = [
   {
-    description: 'importing locally from subdirectory of internal',
+    description: 'importing locally from generic subdirectory of internal',
     parameters: {
       currentFilePath: `${pathToInternal}/a/b.ts`,
       importPath: './c.ts',
     },
+    errorMessageIds: ['invalidSubdirectory'],
   },
   {
-    description: 'importing internal from subdirectory of internal',
+    description: 'importing internal from generic subdirectory of internal',
     parameters: {
       currentFilePath: `${pathToInternal}/a/b.ts`,
       importPath: '../c.ts',
     },
+    errorMessageIds: ['invalidSubdirectory'],
   },
   {
-    description: 'importing absolutely from subdirectory of internal',
+    description: 'importing absolutely from generic subdirectory of internal',
     parameters: {
       currentFilePath: `${pathToInternal}/a/b.ts`,
       importPath: 'src/a/b.txt',
     },
+    errorMessageIds: ['invalidSubdirectory'],
   },
   {
-    description: 'importing absolutely from nested subdirectory of internal',
+    description:
+      'importing absolutely from generic nested subdirectory of internal',
     parameters: {
       currentFilePath: `${pathToInternal}/a/b/c.ts`,
       importPath: 'src/a/b.ts',
     },
+    errorMessageIds: ['invalidSubdirectory'],
   },
   {
-    description: 'importing relatively from nested subdirectory of internal',
+    description:
+      'importing relatively from generic nested subdirectory of internal',
     parameters: {
       currentFilePath: `${pathToInternal}/a/b/c.ts`,
       importPath: './b.ts',
     },
+    errorMessageIds: ['invalidSubdirectory'],
   },
 ];
-
-const typedRule = {
-  ...rule,
-  meta: {
-    ...rule.meta,
-    type: getValidatedRuleType(rule.meta.type),
-  },
-};
 
 new RuleTester({
   parser: '@typescript-eslint/parser',

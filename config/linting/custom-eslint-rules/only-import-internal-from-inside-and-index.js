@@ -8,9 +8,21 @@ const pathNames = {
   srcDirectory: 'src',
 };
 
+const messageVariables = {
+  filePath: 'filePath',
+  importPath: 'importPath',
+};
+
 module.exports = {
   meta: {
-    messages: {},
+    messages: {
+      invalidSubdirectory: `File {{${messageVariables.filePath}}} is in a generic subdirectory of an internal directory which is not allowed`,
+      testFile: `You are in the test file {{${messageVariables.filePath}}} where you are only allowed to import the file you are testing and any local helper files. Imported file {{${messageVariables.importPath}}} does not satisfy this`,
+      testHelperFile: `You are only allowed to do third party imports from a test helper file`,
+      relativeImport: `The file {{${messageVariables.filePath}}} is importing {{${messageVariables.importPath}}} which is a relative import. Only absolute imports are allowed from this file`,
+      localRelativeImport: `File {{${messageVariables.filePath}}} is importing {{${messageVariables.importPath}}} from within internal directory where it is only allowed to relatively import other files in that internal directory`,
+      externalFile: `File {{${messageVariables.filePath}}} is importing {{${messageVariables.importPath}}} which is in an internal directory. Only direct parent index files are allowed to do this`,
+    },
     type: 'problem',
     schema: [],
   },
@@ -74,7 +86,7 @@ class ViolationFinder {
     } else if (this.isTestHelperFile()) {
       return this.getAnyTestHelperViolations();
     } else {
-      return 'File {{filePath}} is in a generic subdirectory of an internal directory which is not allowed';
+      return 'invalidSubdirectory';
     }
   }
 
@@ -96,7 +108,7 @@ class ViolationFinder {
       this.importPathParser.directAncestorsAre('..') && fileNamesMatch;
     const isAllowed = isImportingHelperRelatively || isFileWeAreTesting;
     if (!isAllowed) {
-      return 'You are only allowed to import the file you are testing and any local helper files';
+      return 'testFile';
     }
   }
 
@@ -112,7 +124,7 @@ class ViolationFinder {
   getAnyTestHelperViolations() {
     const isThirdPartyImport = this.importPathParser.isThirdPartyImport();
     if (!isThirdPartyImport) {
-      return 'You are only allowed to do third party imports from a test helper file';
+      return 'testHelperFile';
     }
   }
 
@@ -125,13 +137,13 @@ class ViolationFinder {
 
   getAnyRelativeImportViolation() {
     if (this.importPathParser.isRelative()) {
-      return 'The file {{filePath}} is importing {{importPath}} which is a relative import. Only absolute imports are allowed from this file';
+      return 'relativeImport';
     }
   }
 
   getAnyViolationOfLocalRelativeImport() {
     if (!this.importPathParser.directAncestorsAre('.')) {
-      return 'File {{filePath}} is importing {{importPath}} from within internal directory where it is only allowed to relatively import other files in that internal directory';
+      return 'localRelativeImport';
     }
   }
 
@@ -140,7 +152,7 @@ class ViolationFinder {
       this.importPathParser.hasAncestor(pathNames.internalDirectory) &&
       !this.isIndexDoingOkayImport();
     if (isInViolation) {
-      return 'File {{filePath}} is importing {{importPath}} which is in an internal directory. Only direct parent index files are allowed to do this';
+      return 'externalFile';
     }
   }
 

@@ -8,8 +8,8 @@ export type TestCase = {
   parameters: { currentFilePath: string; importPath: string };
 };
 
-export type ErrorTestCase = TestCase & {
-  errorMessageIds?: string[];
+export type ErrorTestCase<MessageIds extends string> = TestCase & {
+  errorMessageIds?: MessageIds[];
 };
 
 export function testCasesToValidRuleTesterCases(
@@ -24,8 +24,8 @@ import a from '${parameters.importPath}';`,
 }
 
 export function errorTestCasesToInvalidRuleTesterCases<MessageIds extends string>(
-  cases: ErrorTestCase[],
-): InvalidTestCase<string, []>[] {
+  cases: ErrorTestCase<MessageIds>[],
+): InvalidTestCase<MessageIds, []>[] {
   return cases.map(({ description, parameters, errorMessageIds }) => ({
     code: `\
 // ${description}
