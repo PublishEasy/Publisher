@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const { isEqual: areDeepEqual } = require('lodash');
 
 const pathNames = {
@@ -10,6 +9,11 @@ const pathNames = {
 };
 
 module.exports = {
+  meta: {
+    messages: {},
+    type: 'problem',
+    schema: [],
+  },
   create: function onlyImportInternalFromInsideAndIndex(context) {
     return {
       ImportDeclaration(node) {

@@ -1,4 +1,13 @@
-import { create } from '../only-import-internal-from-inside-and-index';
+import rule from '../only-import-internal-from-inside-and-index';
+import { getRuleNameFromFileName } from './helpers/get-rule-name-from-file-name';
+import { getValidatedRuleType } from './helpers/get-validated-rule-type';
+import { RuleTester } from './helpers/rule-tester';
+import {
+  ErrorTestCase,
+  errorTestCasesToInvalidRuleTesterCases,
+  TestCase,
+  testCasesToValidRuleTesterCases
+} from './helpers/test-case-types-and-transformations';
 
 const moduleParentDirectory = 'a';
 const moduleDirectoryName = 'b';
@@ -8,11 +17,6 @@ const pathToTestDirectory = pathToInternal + '/__tests__';
 const indexFile = modulePath + '/index.ts';
 const fileInsideInternal = pathToInternal + '/a.txt';
 const fileOutsideInternal = 'a/b/c.txt';
-
-type TestCase = {
-  description: string;
-  parameters: { currentFilePath: string; importPath: string };
-};
 
 const externalFilePassingTests: TestCase[] = [
   {
@@ -30,7 +34,7 @@ const externalFilePassingTests: TestCase[] = [
     },
   },
 ];
-const externalFileErrorTests: TestCase[] = [
+const externalFileErrorTests: ErrorTestCase[] = [
   {
     description: 'importing internal relatively from outside',
     parameters: {
@@ -84,7 +88,7 @@ const internalFilePassingTests: TestCase[] = [
     },
   },
 ];
-const internalFileErrorTests: TestCase[] = [
+const internalFileErrorTests: ErrorTestCase[] = [
   {
     description: 'importing internal absolutely from inside',
     parameters: {
@@ -143,7 +147,7 @@ const internalTestDirectoryPassingTests: TestCase[] = [
   },
   // TODO: When we add a global test helper library we should add in test that that's allowed
 ];
-const internalTestDirectoryErrorTests: TestCase[] = [
+const internalTestDirectoryErrorTests: ErrorTestCase[] = [
   {
     description:
       'importing internal with absolute import from a test file belonging to the directory',
@@ -196,7 +200,7 @@ const testHelperFilesPassingTests: TestCase[] = [
   },
 ];
 
-const testHelperFilesErrorTests: TestCase[] = [
+const testHelperFilesErrorTests: ErrorTestCase[] = [
   {
     description: 'Absolute src imports from test helper file',
     parameters: {
@@ -257,76 +261,31 @@ const subdirectoryOfInternalFailingTests: TestCase[] = [
   },
 ];
 
-describe('only-import-internal-from-inside-and-index eslint rule', () => {
-  describe('errors when', () => {
-    const errorTests: TestCase[] = [
-      ...externalFileErrorTests,
-      ...internalFileErrorTests,
-      ...internalTestDirectoryErrorTests,
-      ...subdirectoryOfInternalFailingTests,
-      ...testHelperFilesErrorTests,
-    ];
-    errorTests.forEach(({ description, parameters }) =>
-      it(description, () => {
-        const { context, node } = getStubs(parameters);
-
-        assertTestFailed(context, node);
-      }),
-    );
-  });
-
-  describe('passes when', () => {
-    const passingTests: TestCase[] = [
-      ...externalFilePassingTests,
-      ...internalFilePassingTests,
-      ...internalTestDirectoryPassingTests,
-      ...testHelperFilesPassingTests,
-    ];
-    passingTests.forEach(({ description, parameters }) =>
-      it(description, () => {
-        const { context, node } = getStubs(parameters);
-        create(context).ImportDeclaration(node);
-      }),
-    );
-  });
-});
-
-const testFailedMessage = 'Assert test failed';
-
-function getStubs({
-  currentFilePath,
-  importPath,
-}: {
-  currentFilePath: string;
-  importPath: string;
-}): { node: Node; context: Context } {
-  return {
-    context: createContextStub(currentFilePath),
-    node: createNodeStub(importPath),
-  };
-}
-
-function createContextStub(currentFilePath: string): Context {
-  return {
-    report: (): void => {
-      throw new Error(testFailedMessage);
-    },
-    getFilename: (): string => currentFilePath,
-  };
-}
-
-function createNodeStub(importPath: string): Node {
-  return { source: { value: importPath } };
-}
-
-function assertTestFailed(context: Context, node: Node): void {
-  expect(() => create(context).ImportDeclaration(node)).toThrowError(
-    testFailedMessage,
-  );
-}
-
-type Node = { source: { value: string } };
-type Context = {
-  report: () => void;
-  getFilename: () => string;
+const typedRule = {
+  ...rule,
+  meta: {
+    ...rule.meta,
+    type: getValidatedRuleType(rule.meta.type),
+  },
 };
+
+new RuleTester({
+  parser: '@typescript-eslint/parser',
+  parserOptions: { sourceType: 'module', ecmaVersion: 2019 },
+}).run(getRuleNameFromFileName(__filename), typedRule, {
+  valid: [
+    ...testCasesToValidRuleTesterCases(externalFilePassingTests),
+    ...testCasesToValidRuleTesterCases(internalFilePassingTests),
+    ...testCasesToValidRuleTesterCases(internalTestDirectoryPassingTests),
+    ...testCasesToValidRuleTesterCases(testHelperFilesPassingTests),
+  ],
+  invalid: [
+    ...errorTestCasesToInvalidRuleTesterCases(externalFileErrorTests),
+    ...errorTestCasesToInvalidRuleTesterCases(internalFileErrorTests),
+    ...errorTestCasesToInvalidRuleTesterCases(internalTestDirectoryErrorTests),
+    ...errorTestCasesToInvalidRuleTesterCases(
+      subdirectoryOfInternalFailingTests,
+    ),
+    ...errorTestCasesToInvalidRuleTesterCases(testHelperFilesErrorTests),
+  ],
+});
