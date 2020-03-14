@@ -1,6 +1,7 @@
 import type {
   InvalidTestCase,
   ValidTestCase,
+  TestCaseError,
 } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 
 export type TestCase = {
@@ -31,6 +32,8 @@ export function errorTestCasesToInvalidRuleTesterCases<MessageIds extends string
 // ${description}
 import a from '${parameters.importPath}';`,
     filename: parameters.currentFilePath,
-    errors: errorMessageIds.map(id => ({messageId: id})),
+    // Following the type correctly makes the tests fail, so the types must
+    // be somehow out of sync with the RuleTester implementation we have
+    errors: (errorMessageIds as unknown )as TestCaseError<MessageIds>[],
   }));
 }
