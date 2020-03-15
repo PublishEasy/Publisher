@@ -28,23 +28,23 @@ class Path {
     return this.__parser.start() === '.';
   }
 
-  isUnderInternal() {
+  underInternal() {
     return this.__parser.hasAncestor(this.__names.internalDirectory);
   }
 
-  isInInternal() {
+  inInternal() {
     return this.__parser.directAncestorsAre(this.__names.internalDirectory);
   }
 
   isExternal() {
-    return !this.isUnderInternal();
+    return !this.underInternal();
   }
 }
 
 class FilePath extends Path {
   inSubdirectoryOfInternal() {
     return (
-      this.isUnderInternal() &&
+      this.underInternal() &&
       !this.__parser.directAncestorsAre(this.__names.internalDirectory)
     );
   }
@@ -92,8 +92,15 @@ class FilePath extends Path {
 }
 
 class ImportPath extends Path {
-  isDirectChildInternal() {
-    return this.__parser.allAncestorsAre('.', this.__names.internalDirectory);
+  inParent() {
+    return this.__parser.allAncestorsAre('..');
+  }
+
+  isChild() {
+    const expectedLength = 3; // ./child/filename 1 + 1 + 1
+    return (
+      this.__parser.start() === '.' && this.__parser.length() === expectedLength
+    );
   }
 
   isNotLocalRelative() {
@@ -112,13 +119,9 @@ class ImportPath extends Path {
     return !isThirdParty;
   }
 
-  isInParent() {
-    return this.__parser.allAncestorsAre('..');
-  }
-
   isSourceFileForTestPath(filePathObject) {
     const namesMatch = filePathObject.baseEquals(this.__parser.fileNameBase());
-    return this.isInParent() && namesMatch;
+    return this.inParent() && namesMatch;
   }
 
   isTestHelper() {

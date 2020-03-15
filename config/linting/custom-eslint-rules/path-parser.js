@@ -7,7 +7,7 @@ class PathParser {
   }
 
   fileName() {
-    return this.__parts[this.__parts.length - 1];
+    return this.__parts[this.length() - 1];
   }
 
   fileNameBase() {
@@ -16,6 +16,10 @@ class PathParser {
 
   start() {
     return this.__parts[0];
+  }
+
+  length() {
+    return this.__parts.length;
   }
 
   hasAncestor(expectedAncestor) {
@@ -30,7 +34,7 @@ class PathParser {
 
   allAncestorsAre(expectedAncestors, ...rest) {
     expectedAncestors = diverseArgumentsToArray(expectedAncestors, rest);
-    const ancestorLength = this.__parts.length - 1; // pathLength includes filename
+    const ancestorLength = this.length() - 1; // pathLength includes filename
     const expectedNumberAncestorsCorrect =
       ancestorLength === expectedAncestors.length;
     if (expectedNumberAncestorsCorrect) {

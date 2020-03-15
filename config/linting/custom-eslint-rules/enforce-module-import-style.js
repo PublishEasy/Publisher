@@ -17,12 +17,9 @@ module.exports = {
   create: function onlyImportInternalFromInsideAndIndex(context) {
     return {
       ImportDeclaration(node) {
-        const importPathString = node.source.value;
-        const currentPathString = context.getFilename();
-
         const violation = findAnyViolation({
-          currentPathString,
-          importPathString,
+          currentPath: new FilePath(context.getFilename()),
+          importPath: new ImportPath(node.source.value),
         });
 
         if (violation) {
@@ -36,78 +33,68 @@ module.exports = {
   },
 };
 
-function findAnyViolation({ currentPathString, importPathString }) {
-  return new ViolationFinder({
-    currentPathString,
-    importPathString,
-  }).compute();
+function findAnyViolation({ currentPath, importPath }) {
+  const paths = { currentPath, importPath };
+  let violation = null;
+  if (currentPath.inSubdirectoryOfInternal(paths)) {
+    violation = checkInternalSubdirectory(paths);
+  } else if (currentPath.inInternal()) {
+    violation = checkInternalTopLevel(paths);
+  } else if (currentPath.isExternal()) {
+    violation = checkExternal(paths);
+  }
+  return violation;
 }
 
-class ViolationFinder {
-  constructor({ currentPathString, importPathString }) {
-    this.importPath = new ImportPath(importPathString);
-    this.currentPath = new FilePath(currentPathString);
+function checkInternalSubdirectory({ currentPath, importPath }) {
+  if (currentPath.isInternalTestFile()) {
+    return checkTestFile();
+  } else if (currentPath.isTestHelperFile()) {
+    return checkTestHelper();
+  } else {
+    return 'invalidSubdirectory';
   }
 
-  compute() {
-    let violation = null;
-    if (this.currentPath.inSubdirectoryOfInternal()) {
-      violation = this.getAnyInternalSubdirectoryViolation();
-    } else if (this.currentPath.isInInternal()) {
-      violation = this.getAnyTopLevelInternalViolation();
-    } else if (this.currentPath.isExternal()) {
-      violation = this.getAnyExternalViolation();
-    }
-    return violation;
-  }
-
-  getAnyInternalSubdirectoryViolation() {
-    if (this.currentPath.isInternalTestFile()) {
-      return this.getAnyTestFileViolation();
-    } else if (this.currentPath.isTestHelperFile()) {
-      return this.getAnyTestHelperViolation();
-    } else {
-      return 'invalidSubdirectory';
-    }
-  }
-  getAnyTestFileViolation() {
+  function checkTestFile() {
     const isAllowed =
-      this.importPath.isTestHelper() ||
-      this.importPath.isSourceFileForTestPath(this.currentPath);
+      importPath.isTestHelper() ||
+      importPath.isSourceFileForTestPath(currentPath);
     if (!isAllowed) {
       return 'testFile';
     }
     return null;
   }
-  getAnyTestHelperViolation() {
-    if (this.importPath.isNotThirdParty()) {
+  function checkTestHelper() {
+    if (importPath.isNotThirdParty()) {
       return 'testHelperFile';
     }
     return null;
   }
+}
 
-  getAnyTopLevelInternalViolation() {
-    if (this.currentPath.isDependenciesFile()) {
-      if (this.importPath.isRelative()) {
-        return 'dependenciesFile';
-      }
-    } else if (this.importPath.isNotLocalRelative()) {
-      return 'localRelativeImport';
+function checkInternalTopLevel({ currentPath, importPath }) {
+  if (currentPath.isDependenciesFile()) {
+    if (importPath.isRelative()) {
+      return 'dependenciesFile';
     }
-    return null;
+  } else if (importPath.isNotLocalRelative()) {
+    return 'localRelativeImport';
   }
+  return null;
+}
 
-  getAnyExternalViolation() {
-    const isInViolation =
-      this.importPath.isUnderInternal() && this.isNotIndexFileException();
-    if (isInViolation) {
-      return 'externalFile';
-    }
-    return null;
+function checkExternal({ currentPath, importPath }) {
+  const isInViolation = importPath.underInternal() && isNotIndexFileException();
+  if (isInViolation) {
+    return 'externalFile';
   }
-  isNotIndexFileException() {
+  return null;
+
+  function isNotIndexFileException() {
     const isIndexFileException =
-      this.currentPath.isIndexFile() && this.importPath.isDirectChildInternal();
+      currentPath.isIndexFile() &&
+      importPath.isChild() &&
+      importPath.inInternal();
     return !isIndexFileException;
   }
 }
