@@ -28,7 +28,7 @@
     "@types/react": "*",
     "@types/react-dom": "*",
     "@types/supertest": "^2.0.8",
-    "@types/webpack-dev-server": "^3.10.0",
+    "@types/webpack-dev-server": "^3.10.1",
     "@typescript-eslint/eslint-plugin": "*",
     "@typescript-eslint/experimental-utils": "^2.23.0",
     "@typescript-eslint/parser": "*",
