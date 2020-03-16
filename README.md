@@ -1,3 +1,4 @@
+![](https://github.com/PublishEasy/Publisher/workflows/CI/badge.svg)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=PublishEasy/Publisher)](https://dependabot.com)
 
 # Publisher
