@@ -97,13 +97,13 @@ class ImportPath extends Path {
   }
 
   isChild() {
-    const expectedLength = 3; // ./child/filename 1 + 1 + 1
+    const expectedLength = 3; // ['.', 'sibling', 'child'].length
     return (
       this.__parser.start() === '.' && this.__parser.length() === expectedLength
     );
   }
 
-  isNotLocalRelative() {
+  isNotRelativeSibling() {
     const isLocalRelative = this.__parser.allAncestorsAre('.');
     return !isLocalRelative;
   }

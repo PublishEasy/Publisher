@@ -8,7 +8,7 @@ module.exports = {
       testHelperFile: `You are only allowed to do third party imports from a test helper file`,
       dependenciesFile:
         'Dependency files are only allowed to do absolute imports',
-      localRelativeImport: `Internal directory files are only allowed to relatively import other files in that internal directory`,
+      notRelativeSibling: `Internal directory files are only allowed to relatively import other files in that internal directory`,
       externalFile: `Only direct parent index files are allowed to import from internal directory`,
     },
     type: 'problem',
@@ -77,8 +77,8 @@ function checkInternalTopLevel({ currentPath, importPath }) {
     if (importPath.isRelative()) {
       return 'dependenciesFile';
     }
-  } else if (importPath.isNotLocalRelative()) {
-    return 'localRelativeImport';
+  } else if (importPath.isNotRelativeSibling()) {
+    return 'notRelativeSibling';
   }
   return null;
 }

@@ -111,7 +111,7 @@ const internalFileErrorTests: ErrorTestCaseWithMessageIds[] = [
       currentFilePath: fileInsideInternal,
       importPath: pathToInternal + '/b.txt',
     },
-    errorMessageIds: ['localRelativeImport'],
+    errorMessageIds: ['notRelativeSibling'],
   },
   {
     description: 'importing something external from internal',
@@ -119,7 +119,7 @@ const internalFileErrorTests: ErrorTestCaseWithMessageIds[] = [
       currentFilePath: fileInsideInternal,
       importPath: 'src/something.txt',
     },
-    errorMessageIds: ['localRelativeImport'],
+    errorMessageIds: ['notRelativeSibling'],
   },
   {
     description: 'doing local relative import from internal/dependencies.ts',
