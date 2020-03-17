@@ -1,4 +1,5 @@
 ![](https://github.com/PublishEasy/Publisher/workflows/CI/badge.svg)
+[![codecov](https://codecov.io/gh/PublishEasy/Publisher/branch/master/graph/badge.svg)](https://codecov.io/gh/PublishEasy/Publisher)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=PublishEasy/Publisher)](https://dependabot.com)
 
 # Publisher
