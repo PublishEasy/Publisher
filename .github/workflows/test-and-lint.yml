@@ -30,5 +30,9 @@ jobs:
       run: ./scripts/lint-everything.sh
     
     - name: Run tests
-      run: ./scripts/test-short.sh
+      run: ./scripts/test-quick.sh
+    
+    - name: Upload Code Coverage
+      uses: codecov/codecov-action@v1.0.6
+
 
