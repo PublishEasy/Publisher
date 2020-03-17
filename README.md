@@ -1,3 +1,6 @@
+![](https://github.com/PublishEasy/Publisher/workflows/CI/badge.svg)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=PublishEasy/Publisher)](https://dependabot.com)
+
 # Publisher
 
 At the time of writing this is just Emil's pet project to practice software engineering best practices such as clean code and simple design that is flexible, testible, is fit for continuous deployment etc.
