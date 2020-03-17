@@ -131,6 +131,10 @@ run_command_in_docker_with_colors () {
     docker run --rm -t publisher-base "$@"
 }
 
+run_command_in_docker_with_colors_and_write () {
+    docker run --rm -i --mount "type=bind,source=$(pwd),target=/app,consistency=consistent" publisher-base "$@"
+}
+
 run_command_in_docker () {
     docker run --rm publisher-base "$@"
 }
