@@ -1,4 +1,3 @@
-
 import type { Middleware, RouteHandler, RouterSpec, Router } from './types';
 
 export class ConcreteRouter implements Router {
@@ -7,7 +6,10 @@ export class ConcreteRouter implements Router {
     return this;
   }
 
-  addGETRoute(routePattern: string, routeHandler: RouteHandler): ConcreteRouter {
+  addGETRoute(
+    routePattern: string,
+    routeHandler: RouteHandler,
+  ): ConcreteRouter {
     console.log(routePattern, routeHandler);
     return this;
   }
@@ -15,8 +17,7 @@ export class ConcreteRouter implements Router {
   __toRouterSpec(): RouterSpec {
     return {
       middleware: [],
-      routesByMethod: {get: []}
-    }
+      routesByMethod: { get: [] },
+    };
   }
-
 }

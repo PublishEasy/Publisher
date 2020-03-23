@@ -6,7 +6,7 @@ import {
   ErrorTestCase,
   errorTestCasesToInvalidRuleTesterCases,
   TestCase,
-  testCasesToValidRuleTesterCases
+  testCasesToValidRuleTesterCases,
 } from './helpers/test-case-types-and-transformations';
 
 const typedRule = {

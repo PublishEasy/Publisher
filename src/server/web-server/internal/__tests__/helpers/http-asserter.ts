@@ -16,7 +16,10 @@ export class HTTPAsserter {
   }
 
   expect(statusCode: number, doneCallback?: jest.DoneCallback): HTTPAsserter {
-    if (!this.asserter) throw new Error("Asserter not initialized before expect call, remember to make a request through a method first");
+    if (!this.asserter)
+      throw new Error(
+        'Asserter not initialized before expect call, remember to make a request through a method first',
+      );
     this.asserter = this.asserter.expect(statusCode, doneCallback);
     return this;
   }

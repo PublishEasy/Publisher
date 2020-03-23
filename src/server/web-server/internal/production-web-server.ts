@@ -2,17 +2,14 @@ import { NodeHTTPServer } from './dependencies';
 
 import type { Router, WebServer } from './types';
 
-export class ProductionWebServer implements WebServer{
+export class ProductionWebServer implements WebServer {
   // private expressRouter: ExpressRouter;
 
   // constructor() {
   //   this.expressRouter = ExpressRouter();
   // }
 
-  addRouter(
-    pathPrefix: string,
-    router: Router,
-  ): ProductionWebServer {
+  addRouter(pathPrefix: string, router: Router): ProductionWebServer {
     // this.expressApplication.use(pathPrefix, router);
     console.log(pathPrefix, router);
     return this;
@@ -21,7 +18,6 @@ export class ProductionWebServer implements WebServer{
     console.log(port);
     return new NodeHTTPServer();
   }
-
 
   // private convertToExpressMiddleware(middleware: Middleware): ExpressRequestHandler {
   //   return (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction): void => {

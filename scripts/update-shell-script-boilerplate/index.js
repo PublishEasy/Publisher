@@ -77,8 +77,10 @@ function assertCorrectFileStart(lines, filePath) {
 }
 
 function findBoilerplateLineIndices(lines, filePath) {
-  const boilerplateStartIndex = lines.findIndex(x => x === OLD_START_INDICATOR);
-  const boilerplateEndIndex = lines.findIndex(x => x === OLD_END_INDICATOR);
+  const boilerplateStartIndex = lines.findIndex(
+    (x) => x === OLD_START_INDICATOR,
+  );
+  const boilerplateEndIndex = lines.findIndex((x) => x === OLD_END_INDICATOR);
   if (boilerplateStartIndex === -1)
     throw new Error(`${filePath} did not have the start indicator`);
   if (boilerplateEndIndex === -1)

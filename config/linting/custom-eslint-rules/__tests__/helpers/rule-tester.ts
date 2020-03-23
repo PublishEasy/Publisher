@@ -29,7 +29,7 @@ export class RuleTester extends TSESLint.RuleTester {
     const errorMessage = `Do not set the parser at the test level unless you want to use a parser other than ${parser}`;
 
     // standardize the valid tests as objects
-    tests.valid = tests.valid.map(test => {
+    tests.valid = tests.valid.map((test) => {
       if (typeof test === 'string') {
         return {
           code: test,
@@ -38,14 +38,14 @@ export class RuleTester extends TSESLint.RuleTester {
       return test;
     });
 
-    tests.valid.forEach(test => {
+    tests.valid.forEach((test) => {
       if (typeof test !== 'string') {
         if (test.parser === parser) {
           throw new Error(errorMessage);
         }
       }
     });
-    tests.invalid.forEach(test => {
+    tests.invalid.forEach((test) => {
       if (test.parser === parser) {
         throw new Error(errorMessage);
       }

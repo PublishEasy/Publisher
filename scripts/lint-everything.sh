@@ -74,16 +74,15 @@ echo -e "${GREEN}PASSED"
 echo ""
 sleep 1
 
-# Re-enable when Prettier supports typescript 3.8
-# echo -e "${YELLOW}Beginning Prettier formatting ... ${CYAN}"
-# echo ""
+echo -e "${YELLOW}Beginning Prettier formatting ... ${CYAN}"
+echo ""
 
-# run_command_in_docker_with_write_access $DIRECTORY/pre-configured-commands/prettier.sh --write
+run_command_in_docker_with_write_access $DIRECTORY/pre-configured-commands/prettier.sh --write
 
-# echo ""
-# echo -e "${GREEN}PASSED"
-# echo ""
-# sleep 1
+echo ""
+echo -e "${GREEN}PASSED"
+echo ""
+sleep 1
 
 echo -n -e "${YELLOW}Beginning Typescript type checking ... ${RED}"
 

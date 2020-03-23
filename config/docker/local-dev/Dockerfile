@@ -12,4 +12,7 @@ COPY ["package.json", "yarn.lock", "./"]
 RUN yarn --frozen-lockfile
 
 # See .dockerignore for which files we don't include
-COPY . .
+COPY scripts scripts
+COPY config config
+COPY src src
+COPY [".browserslistrc", "tsconfig.json", "./"]

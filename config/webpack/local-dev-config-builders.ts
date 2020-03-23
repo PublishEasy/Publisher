@@ -116,7 +116,7 @@ function getLoadersWithAddedHotReload(rules?: RuleSetRule[]): RuleSetRule[] {
 
   let babelLoaderFound = false;
 
-  const rulesWithHotReloading = rules.map(unmodifiedRule =>
+  const rulesWithHotReloading = rules.map((unmodifiedRule) =>
     addHotReloadingIfIsBabelLoader(unmodifiedRule, markBabelLoaderFound),
   );
 
@@ -152,7 +152,7 @@ function isBabelLoader(rule: RuleSetRule): boolean {
   const loaderIsInToplevel = rule.loader === loaderName;
   const loaderIsInUseKey =
     rule.use instanceof Array &&
-    rule.use.some(x => typeof x === 'object' && x.loader === loaderName);
+    rule.use.some((x) => typeof x === 'object' && x.loader === loaderName);
   // This is a pretty partial check but for now if this is giving false negatives
   // then just update it to support an extra use case
   return loaderIsInToplevel || loaderIsInUseKey;

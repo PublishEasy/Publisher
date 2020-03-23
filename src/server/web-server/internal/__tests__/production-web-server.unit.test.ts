@@ -2,7 +2,7 @@ import { ProductionWebServer } from '../production-web-server';
 import { HTTPAsserter } from './helpers/http-asserter';
 
 describe('ProductionWebServer', () => {
-  it.skip('calls a wildcard get handler for `/`', done => {
+  it.skip('calls a wildcard get handler for `/`', (done) => {
     const server = new ProductionWebServer();
     // const handlerMock = jest
     //   .fn()
