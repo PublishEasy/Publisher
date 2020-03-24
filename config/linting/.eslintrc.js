@@ -34,7 +34,10 @@ const ourCustomEnabledRules = {
 };
 
 const disabledRules = {
+  // This makes it more readable
   '@typescript-eslint/no-use-before-define': 'off',
+  // We use Typescript
+  'react/prop-types': 'off',
 };
 const javascriptCompatibleRules = {
   ...extraEnabledRules,

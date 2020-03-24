@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Login } from 'src/client/login/Login';
+
 export const App: React.FC = () => {
   return (
     <div className="App">
@@ -7,6 +9,7 @@ export const App: React.FC = () => {
         <p>
           it <code>src/Ap</code> <SubText />
         </p>
+        <Login />
       </header>
     </div>
   );

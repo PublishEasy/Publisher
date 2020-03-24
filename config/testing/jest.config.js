@@ -6,6 +6,7 @@ const common = {
       isolatedModules: true,
     },
   },
+  moduleDirectories: ['node_modules', '<rootDir>'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
@@ -20,9 +21,7 @@ module.exports = {
       displayName: 'Unit tests',
       testEnvironment: 'node',
       testMatch: ['<rootDir>/src/**/__tests__/*.unit.test.ts'],
-      collectCoverageFrom: [
-        '<rootDir>/config/linting/custom-eslint-rules/**/*.js',
-      ],
+      collectCoverageFrom: ['<rootDir>/src/**/*.ts'],
       ...common,
     },
     {
@@ -31,7 +30,16 @@ module.exports = {
       testMatch: [
         '<rootDir>/config/linting/custom-eslint-rules/**/__tests__/*.test.ts',
       ],
-      collectCoverageFrom: ['<rootDir>/src/**/*.tsx?'],
+      collectCoverageFrom: [
+        '<rootDir>/config/linting/custom-eslint-rules/**/*.js',
+      ],
+      ...common,
+    },
+    {
+      displayName: 'React tests',
+      testEnvironment: 'jsdom',
+      testMatch: ['<rootDir>/src/client/**/__tests__/*.react.test.tsx'],
+      collectCoverageFrom: ['<rootDir>/src/client/**/*.tsx'],
       ...common,
     },
   ],
