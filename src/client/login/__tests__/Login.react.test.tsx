@@ -10,12 +10,28 @@ describe('Login', () => {
     getLoginTester().assertRenders();
   });
 
-  it('has an email field', () => {
-    getLoginTester().assertHasFieldWithLabel('Email');
+  describe('email field', () => {
+    it('exists', () => {
+      getLoginTester().assertHasFieldWithLabel('Email');
+    });
+
+    it('is a functioning input field', () => {
+      getLoginTester().getFieldByLabel('Email').assertIsFunctioningField();
+    });
   });
 
-  it('has a password field', () => {
-    getLoginTester().assertHasFieldWithLabel('Password');
+  describe('password field', () => {
+    it('exists', () => {
+      getLoginTester().assertHasFieldWithLabel('Password');
+    });
+
+    it('is a functioning input field', () => {
+      getLoginTester().getFieldByLabel('Password').assertIsFunctioningField();
+    });
+
+    it('is password input', () => {
+      getLoginTester().getFieldByLabel('Password').isPasswordField();
+    });
   });
 
   it('has a login button', () => {
