@@ -31,7 +31,7 @@
     "@types/supertest": "^2.0.8",
     "@types/webpack-dev-server": "^3.10.1",
     "@typescript-eslint/eslint-plugin": "*",
-    "@typescript-eslint/experimental-utils": "^2.23.0",
+    "@typescript-eslint/experimental-utils": "^2.25.0",
     "@typescript-eslint/parser": "*",
     "babel-loader": "^8.1.0",
     "eslint": "*",
