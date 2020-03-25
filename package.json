@@ -43,7 +43,7 @@
     "husky": "^4.2.3",
     "jest": "^25.1.0",
     "node-glob": "^1.2.0",
-    "prettier": "^2.0.1",
+    "prettier": "^2.0.2",
     "react": "*",
     "react-dom": "*",
     "react-hot-loader": "^4.12.19",
