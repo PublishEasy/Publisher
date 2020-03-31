@@ -18,5 +18,3 @@ export const App: React.FC = () => {
     </BrowserRouter>
   );
 };
-
-const SubText: React.FC = () => <>t</>;
