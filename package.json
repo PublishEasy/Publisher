@@ -4,7 +4,7 @@
   "private": true,
   "husky": {
     "hooks": {
-      "pre-push": "./scripts/test-quick.sh && ./scripts/lint-everything.sh && test -z \"$(git diff-index --name-only HEAD --)\""
+      "pre-push": "./scripts/git-hooks/pre-push.sh"
     }
   },
   "dependencies": {
