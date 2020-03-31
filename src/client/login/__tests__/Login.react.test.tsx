@@ -2,8 +2,10 @@ import React from 'react';
 
 import { Login } from 'src/client/login/Login';
 import { ReactTester } from 'src/client/test-utilities/react-tester';
+import { ROUTES } from 'src/common/routes';
 
-const getLoginTester: () => ReactTester = () => new ReactTester(<Login />);
+const getLoginTester: () => ReactTester = () =>
+  new ReactTester(<Login />, ROUTES.login);
 
 describe('Login', () => {
   it('renders without crashing', () => {
@@ -12,29 +14,35 @@ describe('Login', () => {
 
   describe('email field', () => {
     it('exists', () => {
-      getLoginTester().assertHasFieldWithLabel('Email');
+      getLoginTester().assertHasFieldLabelled('Email');
     });
 
     it('is a functioning input field', () => {
-      getLoginTester().getFieldByLabel('Email').assertIsFunctioningField();
+      getLoginTester().getFieldLabelled('Email').assertIsFunctioningField();
     });
   });
 
   describe('password field', () => {
     it('exists', () => {
-      getLoginTester().assertHasFieldWithLabel('Password');
+      getLoginTester().assertHasFieldLabelled('Password');
     });
 
     it('is a functioning input field', () => {
-      getLoginTester().getFieldByLabel('Password').assertIsFunctioningField();
+      getLoginTester().getFieldLabelled('Password').assertIsFunctioningField();
     });
 
     it('is password input', () => {
-      getLoginTester().getFieldByLabel('Password').isPasswordField();
+      getLoginTester().getFieldLabelled('Password').assertIsPasswordField();
     });
   });
 
-  it('has a login button', () => {
-    getLoginTester().assertHasButtonNamed('Login');
+  describe('login button', () => {
+    it('exists', () => {
+      getLoginTester().assertHasButtonNamed('Login');
+    });
+
+    it('redirects to root when logged in', () => {
+      getLoginTester().clickButtonNamed('Login').assertURLPathIs('/');
+    });
   });
 });

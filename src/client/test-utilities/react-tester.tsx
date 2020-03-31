@@ -3,10 +3,20 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { render, RenderResult } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { MemoryRouter, Route } from 'react-router-dom';
 
 class Tester {
-  protected throwError(errorMessage: string): never {
-    const error = new Error(errorMessage);
+  protected throwError(errorDescriptor: string | Error): never {
+    const error =
+      errorDescriptor instanceof Error
+        ? errorDescriptor
+        : new Error(errorDescriptor);
+    const cleanError = this.buildCleanError(error);
+    throw cleanError;
+  }
+
+  private buildCleanError(error: Error): Error {
     const dirtyStackTrace = error.stack || '';
     const dirtyStackLines = dirtyStackTrace
       .split('\n')
@@ -16,22 +26,32 @@ class Tester {
     );
     // Extra newline at beginning is for formatting from experience
     const cleanStackStrace = '\n' + cleanStackLines.join('\n');
-
-    const cleanError = error;
+    const cleanError = new Error(error.message);
     cleanError.stack = cleanStackStrace;
-
-    throw cleanError;
+    return cleanError;
   }
 }
 
 export class ReactTester extends Tester {
   private testingLibraryQueries: RenderResult | null;
   private renderError: Error | null = null;
+  private currentUrlPath: string | null = null;
 
-  constructor(reactElement: JSX.Element) {
+  constructor(reactNode: React.ReactNode, initialPath = '/') {
     super();
     try {
-      this.testingLibraryQueries = render(reactElement);
+      this.testingLibraryQueries = render(
+        <MemoryRouter initialEntries={[initialPath]}>
+          {/* This route will keep track of the current location */}
+          <Route
+            render={({ location }): React.ReactNode => {
+              this.currentUrlPath = location.pathname;
+              return null;
+            }}
+          />
+          {reactNode}
+        </MemoryRouter>,
+      );
     } catch (e) {
       this.testingLibraryQueries = null;
       this.renderError = e;
@@ -39,12 +59,12 @@ export class ReactTester extends Tester {
   }
 
   assertRenders(): ReactTester {
-    expect(this.renderError).toBe(null);
+    if (this.renderError !== null) this.throwError(this.renderError);
     expect(this.testingLibraryQueries).not.toBe(null);
     return this;
   }
 
-  assertHasFieldWithLabel(label: string): ReactTester {
+  assertHasFieldLabelled(label: string): ReactTester {
     const queries = this.getQueries();
     try {
       queries.getByLabelText(label);
@@ -71,16 +91,30 @@ export class ReactTester extends Tester {
     return this;
   }
 
-  getFieldByLabel(label: string): HTMLElementTester {
+  getFieldLabelled(label: string): HTMLElementTester {
+    this.assertHasFieldLabelled(label);
     const queries = this.getQueries();
     const field = queries.getByLabelText(label);
     return new HTMLElementTester(field);
   }
 
+  clickButtonNamed(name: string): ReactTester {
+    this.assertHasButtonNamed(name);
+    const queries = this.getQueries();
+    const button = queries.getByRole('button', { name });
+    userEvent.click(button);
+    return this;
+  }
+
+  assertURLPathIs(path: string): ReactTester {
+    expect(this.currentUrlPath).toBe(path);
+    return this;
+  }
+
   private getQueries(): RenderResult {
     if (this.testingLibraryQueries === null) {
-      throw new Error(
-        'There seems to have been an issue rendering the React element. Remember to call assertRenders before anything else',
+      this.throwError(
+        `There seems to have been an issue rendering the React element. Remember to call assertRenders in a test and make sure that passes. The error was:\n${this.renderError}`,
       );
     }
     return this.testingLibraryQueries;
@@ -102,7 +136,7 @@ class HTMLElementTester extends Tester {
     return this;
   }
 
-  isPasswordField(): HTMLElementTester {
+  assertIsPasswordField(): HTMLElementTester {
     /**
      * The HTML semantics of input and password type are important here
      * because it means browsers can treat them right by hiding the input

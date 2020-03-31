@@ -1,68 +1,42 @@
-import React, { ChangeEventHandler, useReducer } from 'react';
+import React, { useCallback, useReducer } from 'react';
+import { Redirect } from 'react-router-dom';
 
-export const Login: React.FunctionComponent = () => {
+import { Form } from 'src/client/building-blocks/Form';
+import {
+  EmailInput,
+  PasswordInput
+} from 'src/client/building-blocks/input-components';
+import { ROUTES } from 'src/common/routes';
+
+const LoginComponent: React.FunctionComponent<{ login: () => void }> = ({
+  login,
+}) => {
   return (
-    <form>
+    <Form onSubmit={login}>
       <EmailInput />
       <PasswordInput />
       <button type="submit">Login</button>
-    </form>
+    </Form>
   );
 };
 
-const EmailInput: React.FunctionComponent = () => {
-  return <Input label="Email" type="email" />;
-};
-
-const PasswordInput: React.FunctionComponent = () => {
-  return <Input label="Password" type="password" />;
-};
-
 type State = {
-  value: string;
+  isLoggedIn: boolean;
 };
-type Action = { type: 'update'; payload: { newValue: string } };
+const initialState: State = { isLoggedIn: false };
+type Action = { type: 'login' };
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'update':
-      return { value: action.payload.newValue };
+    case 'login':
+      return { isLoggedIn: true };
     default:
       throw new Error();
   }
 }
-const Input: React.FunctionComponent<{
-  label: string;
-  type: React.InputHTMLAttributes<HTMLInputElement>['type'];
-}> = ({ label, type }) => {
-  const [state, dispatch] = useReducer(reducer, { value: '' });
-  return (
-    <InputComponent
-      label={label}
-      type={type}
-      value={state.value}
-      onChange={(e): void =>
-        dispatch({
-          type: 'update',
-          payload: { newValue: e.target.value },
-        })
-      }
-    />
-  );
-};
 
-const InputComponent: React.FunctionComponent<{
-  label: string;
-  type: React.InputHTMLAttributes<HTMLInputElement>['type'];
-  value: string;
-  onChange: ChangeEventHandler<HTMLInputElement>;
-}> = ({ label, type, value, onChange }) => {
-  const id = `${label}-input`;
-  return (
-    <div>
-      <label htmlFor={id}>
-        <div>{label}</div>
-        <input id={id} type={type} value={value} onChange={onChange} />
-      </label>
-    </div>
-  );
+export const Login: React.FunctionComponent = () => {
+  const [{ isLoggedIn }, dispatch] = useReducer(reducer, initialState);
+  const login = useCallback(() => dispatch({ type: 'login' }), [dispatch]);
+  if (isLoggedIn) return <Redirect to={ROUTES.homepage} />;
+  return <LoginComponent login={login} />;
 };
