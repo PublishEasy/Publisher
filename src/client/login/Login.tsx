@@ -4,7 +4,7 @@ import { Redirect } from 'react-router-dom';
 import { Form } from 'src/client/building-blocks/Form';
 import {
   EmailInput,
-  PasswordInput
+  PasswordInput,
 } from 'src/client/building-blocks/input-components';
 import { ROUTES } from 'src/common/routes';
 
