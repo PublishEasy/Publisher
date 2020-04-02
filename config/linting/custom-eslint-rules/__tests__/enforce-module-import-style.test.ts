@@ -103,6 +103,14 @@ const internalFilePassingTests: TestCase[] = [
       importPath: 'express',
     },
   },
+  {
+    description:
+      'importing from React in an internal file, an exception we allow',
+    parameters: {
+      currentFilePath: fileInsideInternal,
+      importPath: 'react',
+    },
+  },
 ];
 const internalFileErrorTests: ErrorTestCaseWithMessageIds[] = [
   {

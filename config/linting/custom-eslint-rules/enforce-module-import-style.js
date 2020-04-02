@@ -25,7 +25,7 @@ module.exports = {
         if (violation) {
           context.report({
             node,
-            message: violation,
+            messageId: violation,
           });
         }
       },
@@ -73,6 +73,8 @@ function checkInternalSubdirectory({ currentPath, importPath }) {
 }
 
 function checkInternalTopLevel({ currentPath, importPath }) {
+  if (importPath.isFromReact()) return null;
+
   if (currentPath.isDependenciesFile()) {
     if (importPath.isRelative()) {
       return 'dependenciesFile';

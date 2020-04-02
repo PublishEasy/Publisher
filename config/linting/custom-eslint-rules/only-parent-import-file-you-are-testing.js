@@ -21,7 +21,7 @@ module.exports = {
         if (violation) {
           context.report({
             node,
-            message: violation,
+            messageId: violation,
           });
         }
       },

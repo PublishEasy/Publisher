@@ -127,6 +127,12 @@ class ImportPath extends Path {
   isTestHelper() {
     return this.__parser.allAncestorsAre('.', this.__names.testHelperDirectory);
   }
+
+  isFromReact() {
+    return (
+      this.__parser.allAncestorsAre([]) && this.__parser.fileName() === 'react'
+    );
+  }
 }
 
 module.exports = {

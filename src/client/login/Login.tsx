@@ -1,12 +1,22 @@
-import React, { useCallback, useReducer } from 'react';
+import React from 'react';
 import { Redirect } from 'react-router-dom';
 
-import { Form } from 'src/client/building-blocks/Form';
-import {
-  EmailInput,
-  PasswordInput,
-} from 'src/client/building-blocks/input-components';
+import { EmailInput, Form, PasswordInput } from 'src/client/building-blocks';
+import { AuthProvider, useAuth } from 'src/client/global-state/auth-store';
 import { ROUTES } from 'src/common/routes';
+
+export const Login: React.FunctionComponent = () => {
+  return (
+    <AuthProvider>
+      <LoginA />
+    </AuthProvider>
+  );
+};
+const LoginA: React.FunctionComponent = () => {
+  const { store, login } = useAuth();
+  if (store.isLoggedIn()) return <Redirect to={ROUTES.homepage} />;
+  return <LoginComponent login={login} />;
+};
 
 const LoginComponent: React.FunctionComponent<{ login: () => void }> = ({
   login,
@@ -18,25 +28,4 @@ const LoginComponent: React.FunctionComponent<{ login: () => void }> = ({
       <button type="submit">Login</button>
     </Form>
   );
-};
-
-type State = {
-  isLoggedIn: boolean;
-};
-const initialState: State = { isLoggedIn: false };
-type Action = { type: 'login' };
-function reducer(state: State, action: Action): State {
-  switch (action.type) {
-    case 'login':
-      return { isLoggedIn: true };
-    default:
-      throw new Error();
-  }
-}
-
-export const Login: React.FunctionComponent = () => {
-  const [{ isLoggedIn }, dispatch] = useReducer(reducer, initialState);
-  const login = useCallback(() => dispatch({ type: 'login' }), [dispatch]);
-  if (isLoggedIn) return <Redirect to={ROUTES.homepage} />;
-  return <LoginComponent login={login} />;
 };
