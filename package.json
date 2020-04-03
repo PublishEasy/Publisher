@@ -42,7 +42,7 @@
     "eslint-plugin-react-hooks": "^3.0.0",
     "html-webpack-plugin": "^4.0.4",
     "husky": "^4.2.3",
-    "jest": "^25.2.4",
+    "jest": "^25.2.7",
     "node-glob": "^1.2.0",
     "prettier": "^2.0.2",
     "react": "*",
