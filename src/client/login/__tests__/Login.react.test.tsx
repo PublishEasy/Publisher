@@ -4,8 +4,10 @@ import { Login } from 'src/client/login/Login';
 import { ReactTester } from 'src/client/test-utilities/react-tester';
 import { ROUTES } from 'src/common/routes';
 
+const INITIAL_PATH = ROUTES.login;
+
 const getLoginTester: () => ReactTester = () =>
-  new ReactTester(<Login />, ROUTES.login);
+  new ReactTester(<Login />, INITIAL_PATH);
 
 describe('Login', () => {
   it('renders without crashing', () => {
@@ -41,8 +43,39 @@ describe('Login', () => {
       getLoginTester().assertHasButtonNamed('Login');
     });
 
-    it('redirects to root when logged in', () => {
-      getLoginTester().clickButtonNamed('Login').assertURLPathIs('/');
+    it('stays on initial path when no credentials provided', () => {
+      getLoginTester().clickButtonNamed('Login').assertURLPathIs(INITIAL_PATH);
+    });
+
+    it('stays on initial path when wrong credentials provided', () => {
+      const loginInfo = {
+        email: 'wrong@gmail.com',
+        password: 'wrongpassword',
+      };
+      const tester = getFilledFormTester(loginInfo);
+      tester.clickButtonNamed('Login').assertURLPathIs(INITIAL_PATH);
+    });
+
+    it('redirects to homepage when correct credentials provided', () => {
+      const loginInfo = {
+        email: 'user@gmail.com',
+        password: 'password',
+      };
+      const tester = getFilledFormTester(loginInfo);
+      tester.clickButtonNamed('Login').assertURLPathIs(ROUTES.homepage);
     });
   });
 });
+
+function getFilledFormTester({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}): ReactTester {
+  const tester = getLoginTester();
+  tester.getFieldLabelled('Email').type(email);
+  tester.getFieldLabelled('Password').type(password);
+  return tester;
+}

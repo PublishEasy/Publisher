@@ -129,6 +129,11 @@ class HTMLElementTester extends Tester {
     this.element = element;
   }
 
+  type(text: string): HTMLElementTester {
+    userEvent.type(this.element, text);
+    return this;
+  }
+
   assertIsFunctioningField(): HTMLElementTester {
     expect(this.element).toHaveValue('');
     userEvent.type(this.element, 'abc');

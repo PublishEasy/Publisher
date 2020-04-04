@@ -44,7 +44,12 @@ class AuthStoreImplementation implements AuthStore {
   }
 }
 
-export const useAuth = (): { store: AuthStore; login: () => void } => {
+type LoginInfo = { email: string; password: string };
+
+export const useAuth = (): {
+  store: AuthStore;
+  login: (loginInfo: LoginInfo) => void;
+} => {
   const authContext = useContext(AuthContext);
   if (authContext === null)
     throw new Error(
@@ -52,8 +57,15 @@ export const useAuth = (): { store: AuthStore; login: () => void } => {
     );
   const { state, dispatch } = authContext;
 
+  const isCorrectLogin = ({ email, password }: LoginInfo) =>
+    email === 'user@gmail.com' && password === 'password';
+
   return {
     store: new AuthStoreImplementation(state),
-    login: useCallback(() => dispatch({ type: 'login' }), [dispatch]),
+    login: useCallback(
+      (loginInfo: LoginInfo) =>
+        isCorrectLogin(loginInfo) && dispatch({ type: 'login' }),
+      [dispatch],
+    ),
   };
 };

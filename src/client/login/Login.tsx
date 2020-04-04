@@ -1,30 +1,33 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 
-import { EmailInput, Form, PasswordInput } from 'src/client/building-blocks';
+import { EmailInput, Form, PasswordInput } from 'src/client/form';
 import { AuthProvider, useAuth } from 'src/client/global-state/auth-store';
 import { ROUTES } from 'src/common/routes';
 
 export const Login: React.FunctionComponent = () => {
   return (
     <AuthProvider>
-      <LoginA />
+      <LoginContainer />
     </AuthProvider>
   );
 };
-const LoginA: React.FunctionComponent = () => {
+
+const LoginContainer: React.FunctionComponent = () => {
   const { store, login } = useAuth();
   if (store.isLoggedIn()) return <Redirect to={ROUTES.homepage} />;
   return <LoginComponent login={login} />;
 };
 
-const LoginComponent: React.FunctionComponent<{ login: () => void }> = ({
-  login,
-}) => {
+type LoginFormValues = { email: string; password: '' };
+
+const LoginComponent: React.FunctionComponent<{
+  login: (loginFormValues: LoginFormValues) => void;
+}> = ({ login }) => {
   return (
-    <Form onSubmit={login}>
-      <EmailInput />
-      <PasswordInput />
+    <Form initialValues={{ email: '', password: '' }} onSubmit={login}>
+      <EmailInput name="email" />
+      <PasswordInput name="password" />
       <button type="submit">Login</button>
     </Form>
   );
