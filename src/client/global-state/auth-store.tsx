@@ -57,15 +57,26 @@ export const useAuth = (): {
     );
   const { state, dispatch } = authContext;
 
-  const isCorrectLogin = ({ email, password }: LoginInfo) =>
-    email === 'user@gmail.com' && password === 'password';
-
   return {
     store: new AuthStoreImplementation(state),
     login: useCallback(
-      (loginInfo: LoginInfo) =>
-        isCorrectLogin(loginInfo) && dispatch({ type: 'login' }),
+      async (loginInfo: LoginInfo) => {
+        const success = await apiClient.login(loginInfo);
+        if (success) {
+          dispatch({ type: 'login' });
+        }
+      },
       [dispatch],
     ),
   };
 };
+
+class ApiClientStub {
+  login({ email, password }: LoginInfo): Promise<boolean> {
+    return Promise.resolve(
+      email === 'user@gmail.com' && password === 'password',
+    );
+  }
+}
+
+const apiClient = new ApiClientStub();

@@ -62,7 +62,7 @@ describe('Login', () => {
         password: 'password',
       };
       const tester = getFilledFormTester(loginInfo);
-      tester.clickButtonNamed('Login').assertURLPathIs(ROUTES.homepage);
+      tester.clickButtonNamed('Login').async.assertURLPathIs(ROUTES.homepage);
     });
   });
 });

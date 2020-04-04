@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-unassigned-import
 import '@testing-library/jest-dom/extend-expect';
 
-import { render, RenderResult } from '@testing-library/react';
+import { render, RenderResult, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { MemoryRouter, Route } from 'react-router-dom';
@@ -36,6 +36,7 @@ export class ReactTester extends Tester {
   private testingLibraryQueries: RenderResult | null;
   private renderError: Error | null = null;
   private currentUrlPath: string | null = null;
+  private asyncAssert = false;
 
   constructor(reactNode: React.ReactNode, initialPath = '/') {
     super();
@@ -107,7 +108,16 @@ export class ReactTester extends Tester {
   }
 
   assertURLPathIs(path: string): ReactTester {
-    expect(this.currentUrlPath).toBe(path);
+    if (this.asyncAssert) {
+      waitFor(() => expect(this.currentUrlPath).toBe(path));
+    } else {
+      expect(this.currentUrlPath).toBe(path);
+    }
+    return this;
+  }
+
+  get async(): ReactTester {
+    this.asyncAssert = true;
     return this;
   }
 
