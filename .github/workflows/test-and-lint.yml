@@ -10,27 +10,24 @@ on:
   pull_request:
     branches: [master]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Yarn?
+      - name: Yarn
         run: yarn
 
-      # Runs a single command using the runners shell
       - name: Lint and type check
         run: ./scripts/lint-everything.sh
 
       - name: Run tests
         run: ./scripts/test-quick.sh
+
+      - name: Check that our custom eslint rules are up to date with source
+        run: ./scripts/custom-eslint-rules-are-up-to-date.sh
 
       - name: Upload Code Coverage
         uses: codecov/codecov-action@v1.0.6
