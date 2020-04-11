@@ -44,7 +44,7 @@ export class ProductionWebServer implements WebServer {
   __addRouterSpec(pathPrefix: string, spec: RouterSpec): void {
     const router = getExpressRouter();
     const middlewares = spec.middleware.map(this.convertToExpressMiddleware);
-    middlewares.length && router.use(middlewares);
+    middlewares.length && router.use(pathPrefix, ...middlewares);
     spec.routesByMethod.get.forEach(({ pathPattern, routeHandler }) =>
       router.get(pathPattern, this.convertToExpressGetRoute(routeHandler)),
     );

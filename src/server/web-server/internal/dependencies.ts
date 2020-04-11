@@ -1,12 +1,12 @@
 import express from 'express';
 
 export type {
-  Request as ExpressRequest,
   RequestHandler as ExpressRequestHandler,
+  Request as ExpressRequest,
   Response as ExpressResponse,
   NextFunction as ExpressNextFunction,
-  Express as ExpressApplication,
-} from 'express';
+  Express as ExpressApplication, // TODO: This should possibly be imported from 'express' again in the future but for now those types seem to be broken for us, maybe due to us using the alpha release
+} from 'express-serve-static-core';
 export { Router as getExpressRouter } from 'express';
 export { express as getExpressApplication };
 export { Server as NodeHTTPServer } from 'http';
