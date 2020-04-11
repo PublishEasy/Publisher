@@ -43,7 +43,7 @@
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^3.0.0",
     "formik": "^2.1.4",
-    "html-webpack-plugin": "^4.0.4",
+    "html-webpack-plugin": "^4.2.0",
     "husky": "^4.2.5",
     "jest": "^25.3.0",
     "node-glob": "^1.2.0",
