@@ -134,7 +134,7 @@ run_command_in_docker_with_colors () {
 }
 
 run_command_in_docker_with_colors_and_write () {
-    docker run --rm -i --mount "type=bind,source=$(pwd),target=/app,consistency=consistent" publisher-base "$@"
+    docker run --rm -t --mount "type=bind,source=$(pwd),target=/app,consistency=consistent" publisher-base "$@"
 }
 
 run_command_in_docker () {
