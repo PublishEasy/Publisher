@@ -1,23 +1,28 @@
-import type { Middleware, RouteHandler, RouterSpec, Router } from './types';
+import type {
+  Middleware,
+  RouteHandler,
+  RouterSpec,
+  Router,
+  WebServer,
+} from './types';
 
 export class ConcreteRouter implements Router {
+  routerSpec: RouterSpec = {
+    middleware: [],
+    routesByMethod: { get: [] },
+  };
+
   addMiddleware(...middleware: Middleware[]): ConcreteRouter {
-    console.log(middleware);
+    this.routerSpec.middleware.push(...middleware);
     return this;
   }
 
-  addGETRoute(
-    routePattern: string,
-    routeHandler: RouteHandler,
-  ): ConcreteRouter {
-    console.log(routePattern, routeHandler);
+  addGETRoute(pathPattern: string, routeHandler: RouteHandler): ConcreteRouter {
+    this.routerSpec.routesByMethod.get.push({ pathPattern, routeHandler });
     return this;
   }
 
-  __toRouterSpec(): RouterSpec {
-    return {
-      middleware: [],
-      routesByMethod: { get: [] },
-    };
+  addToServer(server: WebServer, pathPrefix: string): void {
+    server.__addRouterSpec(pathPrefix, this.routerSpec);
   }
 }

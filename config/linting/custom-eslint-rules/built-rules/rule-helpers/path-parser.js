@@ -1,37 +1,30 @@
-const { isEqual: areDeepEqual } = require('lodash');
-
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+const lodash_1 = require('lodash');
 class PathParser {
   constructor(path) {
-    if (!path) throw new Error('PathParser needs a path');
-    this.__parts = path.split('/');
+    this.parts = path.split('/');
   }
-
   fileName() {
-    return this.__parts[this.length() - 1];
+    return this.parts[this.length() - 1];
   }
-
   fileNameBase() {
     return this.fileName().split('.')[0];
   }
-
   start() {
-    return this.__parts[0];
+    return this.parts[0];
   }
-
   length() {
-    return this.__parts.length;
+    return this.parts.length;
   }
-
   hasAncestor(expectedAncestor) {
-    return this.__parts.includes(expectedAncestor);
+    return this.parts.includes(expectedAncestor);
   }
-
   directAncestorsAre(expectedAncestors, ...rest) {
     expectedAncestors = diverseArgumentsToArray(expectedAncestors, rest);
-    const actualAncestors = this.__getXAncestors(expectedAncestors.length);
-    return areDeepEqual(expectedAncestors, actualAncestors);
+    const actualAncestors = this.getXAncestors(expectedAncestors.length);
+    return lodash_1.isEqual(expectedAncestors, actualAncestors);
   }
-
   allAncestorsAre(expectedAncestors, ...rest) {
     expectedAncestors = diverseArgumentsToArray(expectedAncestors, rest);
     const ancestorLength = this.length() - 1; // pathLength includes filename
@@ -42,23 +35,24 @@ class PathParser {
     }
     return false;
   }
-
-  __getXAncestors(numAncestors) {
+  getXAncestors(numAncestors) {
     const lengthWithFilename = numAncestors + 1;
-    const pathParts = this.__getLastPartsOfPath(lengthWithFilename);
+    const pathParts = this.getLastPartsOfPath(lengthWithFilename);
     const partsWithoutFilename = pathParts.slice(0, -1);
     return partsWithoutFilename;
   }
-
-  __getLastPartsOfPath(numPartsOfPath) {
-    return this.__parts.slice(-1 * numPartsOfPath);
+  getLastPartsOfPath(numPartsOfPath) {
+    return this.parts.slice(-1 * numPartsOfPath);
   }
 }
-
+exports.PathParser = PathParser;
 function diverseArgumentsToArray(expectedParents, rest) {
-  if (typeof expectedParents === 'string') expectedParents = [expectedParents];
-  if (rest) expectedParents = expectedParents.concat(rest);
-  return expectedParents;
+  const allExpectedParents = [];
+  if (typeof expectedParents === 'string')
+    allExpectedParents.push(expectedParents);
+  else {
+    allExpectedParents.push(...expectedParents);
+  }
+  allExpectedParents.push(...rest);
+  return allExpectedParents;
 }
-
-module.exports = PathParser;

@@ -29,7 +29,6 @@ const extraEnabledRules = {
 };
 
 const ourCustomEnabledRules = {
-  'only-parent-import-file-you-are-testing': 'error',
   'enforce-module-import-style': 'error',
 };
 

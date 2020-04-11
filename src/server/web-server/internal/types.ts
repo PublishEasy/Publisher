@@ -1,20 +1,21 @@
 import type { NodeHTTPServer } from './dependencies';
+export { NodeHTTPServer };
 
 type Route = { pathPattern: string; routeHandler: RouteHandler };
 
 export interface WebServer {
   addRouter(pathPrefix: string, router: Router): WebServer;
-  exposeToInternetOnPort(port: number): NodeHTTPServer;
+  __addRouterSpec(pathPrefix: string, spec: RouterSpec): void;
+  exposeToInternetOnPort(
+    port: number,
+    successfullyExposed?: () => void,
+  ): NodeHTTPServer;
 }
 
 export interface Router {
   addMiddleware(...middleware: Middleware[]): Router;
   addGETRoute(routePattern: string, routeHandler: RouteHandler): Router;
-  /**
-   * @restricted
-   * This is only intended for use by the WebServer receiving it and for testing
-   */
-  __toRouterSpec(): RouterSpec;
+  addToServer(server: WebServer, pathPrefix: string): void;
 }
 
 export type RouterSpec = {
@@ -28,7 +29,7 @@ export type Middleware = (
   req: Request,
   res: Response,
   callNextMiddleware: () => void,
-) => never;
+) => void;
 
 export type RouteHandler = (req: Request, res: Response) => void;
 
@@ -38,4 +39,5 @@ export interface Request {
 
 export interface Response {
   send: (message: string) => void;
+  sendStatus: (status: number) => void;
 }

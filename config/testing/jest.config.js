@@ -31,7 +31,7 @@ module.exports = {
         '<rootDir>/config/linting/custom-eslint-rules/**/__tests__/*.test.ts',
       ],
       collectCoverageFrom: [
-        '<rootDir>/config/linting/custom-eslint-rules/**/*.js',
+        '<rootDir>/config/linting/custom-eslint-rules/**/*.ts',
       ],
       ...common,
     },

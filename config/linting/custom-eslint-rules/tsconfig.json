@@ -1,0 +1,11 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "allowJs": false,
+    "baseUrl": ".",
+    "typeRoots": ["../../../node_modules/@types"],
+    "outDir": "built-rules",
+    "sourceMap": false
+  },
+  "include": ["src/*.ts"]
+}

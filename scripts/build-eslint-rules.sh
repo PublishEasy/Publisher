@@ -9,11 +9,11 @@
 
 set -e
 
-ROOT_DIRECTORY=$(dirname "${BASH_SOURCE[0]}")/../..
+ROOT_DIRECTORY=$(dirname "${BASH_SOURCE[0]}")/..
 cd $ROOT_DIRECTORY
 
 # We want relative paths for docker commands specifically and since we use cd relative paths work
-DIRECTORY=scripts/pre-configured-commands
+DIRECTORY=scripts
 ROOT_DIRECTORY=.
 
 
@@ -48,12 +48,6 @@ build_docker_image () {
 
 ## SHELL BOILERPLATE STOPS HERE. FEEL FREE TO EDIT ANYTHING BELOW THIS COMMENT
 
-./node_modules/.bin/eslint \
---config ./config/linting/.eslintrc.js \
---ignore-path .gitignore \
---ignore-pattern 'config/linting/custom-eslint-rules/built-rules/**/*.js' \
---rulesdir ./config/linting/custom-eslint-rules/built-rules \
---ext .ts,.tsx,.js,.jsx \
---max-warnings 0 \
-"$@" \
-./
+run_command_in_docker_with_write_access rm -rf $ROOT_DIRECTORY/config/linting/custom-eslint-rules/built-rules
+
+run_command_in_docker_with_write_access $ROOT_DIRECTORY/node_modules/.bin/tsc -p $ROOT_DIRECTORY/config/linting/custom-eslint-rules/tsconfig.json
