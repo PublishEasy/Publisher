@@ -53,16 +53,21 @@ E2E_tests_docker_path=/e2e-tests
 
 mkdir -p end-to-end-screenshots
 
+teardown() {
+    docker-compose -f $PROD_COMPOSE_FILE down
+}
+
 docker-compose -f $PROD_COMPOSE_FILE up --build --detach
 
-docker run \
+(docker run \
     --mount "type=bind,source=$(pwd)/src/__tests__/end-to-end,target=$E2E_tests_docker_path" \
-    --mount "type=bind,source=$(pwd)/end-to-end-screenshots,target=/screenshots" \
+    --mount "type=bind,source=$(pwd)/end-to-end-screenshots,target=/end-to-end-screenshots" \
     --net=host \
     -it \
     testcafe/testcafe \
     "firefox:headless,chromium:headless" \
     $E2E_tests_docker_path/*.testcafe.ts \
-    --screenshots takeOnFails=true,path=/screenshots
+    --screenshots takeOnFails=true,path=/end-to-end-screenshots) \
+    || (teardown && exit 1)
 
-docker-compose -f $PROD_COMPOSE_FILE down
+teardown

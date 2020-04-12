@@ -7,7 +7,7 @@ import type {
 } from './types';
 
 export class ConcreteRouter implements Router {
-  routerSpec: RouterSpec = {
+  private routerSpec: RouterSpec = {
     middleware: [],
     routesByMethod: { get: [] },
   };

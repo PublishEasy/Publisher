@@ -1,4 +1,13 @@
-import { ConcreteRouter, Middleware, Router } from 'src/server/web-server';
+import path from 'path';
+
+import { ROOT_DIRECTORY } from 'src/server/paths';
+import {
+  ConcreteRouter,
+  Middleware,
+  Request,
+  Response,
+  Router,
+} from 'src/server/web-server';
 
 type RouterGetter = (...middleware: Middleware[]) => Router;
 
@@ -32,6 +41,11 @@ class AuthenticationRoutingStrategy implements RoutingStrategy {
 
 class CMSWebServerRoutingStrategy implements RoutingStrategy {
   applyRoutes(router: ConcreteRouter): void {
-    router.addGETRoute('/', (_req, res) => res.send('CMS'));
+    router.addGETRoute('/', sendAppHtml);
+    router.addGETRoute('/login', sendAppHtml);
+
+    function sendAppHtml(_: Request, res: Response): void {
+      res.sendFile(path.join(ROOT_DIRECTORY, 'public/index.html'));
+    }
   }
 }

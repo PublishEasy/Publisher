@@ -4,7 +4,7 @@ import {
   DEV_SERVER_PORT,
   PUBLIC_FILES_DIRECTORY,
   URL_TO_SERVE_PUBLIC_FILES_FROM,
-  WebpackConfig
+  WebpackConfig,
 } from './constants-types-paths';
 import { getProcessEnvPlugin } from './get-process-env-plugin';
 

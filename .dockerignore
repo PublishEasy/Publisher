@@ -1,2 +1,5 @@
 node_modules
 .git
+# Our built files. We don't want to copy in our local versions
+public/index.html
+public/main.js

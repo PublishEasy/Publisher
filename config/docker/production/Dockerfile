@@ -9,15 +9,15 @@ COPY ["package.json", "yarn.lock", "./"]
 RUN yarn --frozen-lockfile
 
 COPY src src
+COPY config/webpack config/webpack
 COPY tsconfig.json tsconfig.json
 
-RUN ./node_modules/.bin/tsc
+RUN ./node_modules/.bin/webpack --config config/webpack/server-production-config.ts
 
-COPY config/webpack config/webpack
 COPY .browserslistrc .browserslistrc
 COPY public public
 
-RUN ./node_modules/.bin/webpack --config config/webpack/production-config.ts
+RUN ./node_modules/.bin/webpack --config config/webpack/web-client-production-config.ts
 
 # Build production dependencies
 FROM node:12-alpine AS dependency-builder

@@ -5,6 +5,7 @@ type Route = { pathPattern: string; routeHandler: RouteHandler };
 
 export interface WebServer {
   addRouter(pathPrefix: string, router: Router): WebServer;
+  serveStaticFilesFrom(pathToStaticDirectory: string): WebServer;
   __addRouterSpec(pathPrefix: string, spec: RouterSpec): void;
   exposeToInternetOnPort(
     port: number,
@@ -39,5 +40,6 @@ export interface Request {
 
 export interface Response {
   send: (message: string) => void;
+  sendFile: (filePath: string) => void;
   sendStatus: (status: number) => void;
 }

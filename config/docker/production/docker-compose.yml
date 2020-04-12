@@ -20,4 +20,4 @@ services:
       - 8080:8080
     environment:
       PORT: 8080
-    command: node dist/server/index.js
+    command: node dist/server.js

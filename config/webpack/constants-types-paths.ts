@@ -12,6 +12,7 @@ import type { Configuration } from 'webpack';
 // Can't export normally due to --isolatedModules https://github.com/Microsoft/TypeScript/issues/21194
 export type WebpackConfig = Configuration;
 export const PUBLIC_FILES_DIRECTORY = absoluteFromRoot('public');
+export const DIST_DIRECTORY = absoluteFromRoot('dist');
 export const URL_TO_SERVE_PUBLIC_FILES_FROM = '/';
 export const DEV_SERVER_PORT = 3000;
 export const HTML_TEMPLATE_PATH = absoluteFromRoot('src/client/index.html');

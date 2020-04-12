@@ -6,6 +6,7 @@ import {
   ExpressResponse,
   getExpressApplication,
   getExpressRouter,
+  getExpressStaticMiddleware,
   NodeHTTPServer,
 } from './dependencies';
 
@@ -27,6 +28,11 @@ export class ProductionWebServer implements WebServer {
 
   addRouter(pathPrefix: string, router: Router): ProductionWebServer {
     router.addToServer(this, pathPrefix);
+    return this;
+  }
+
+  serveStaticFilesFrom(pathToStaticDirectory: string): ProductionWebServer {
+    this.expressApp.use(getExpressStaticMiddleware(pathToStaticDirectory));
     return this;
   }
 
