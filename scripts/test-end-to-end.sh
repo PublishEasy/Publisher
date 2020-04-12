@@ -63,7 +63,7 @@ docker-compose -f $PROD_COMPOSE_FILE up --build --detach
     --mount "type=bind,source=$(pwd)/src/__tests__/end-to-end,target=$E2E_tests_docker_path" \
     --mount "type=bind,source=$(pwd)/end-to-end-screenshots,target=/end-to-end-screenshots" \
     --net=host \
-    -it \
+    -t \
     testcafe/testcafe \
     "firefox:headless,chromium:headless" \
     $E2E_tests_docker_path/*.testcafe.ts \
