@@ -50,6 +50,7 @@ build_docker_image () {
 
 ./node_modules/.bin/prettier \
 --check \
+--ignore-path .gitignore \
 --config ./config/linting/.prettierrc.yml \
 "$@" \
 './**' '!./**/{coverage,dist,public}/**' '!./*' '!./**/{Dockerfile,*.sh}'
