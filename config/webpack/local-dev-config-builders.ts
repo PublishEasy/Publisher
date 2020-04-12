@@ -1,11 +1,12 @@
-import { DefinePlugin, RuleSetRule } from 'webpack';
+import { NamedChunksPlugin, NamedModulesPlugin, RuleSetRule } from 'webpack';
 
 import {
   DEV_SERVER_PORT,
   PUBLIC_FILES_DIRECTORY,
   URL_TO_SERVE_PUBLIC_FILES_FROM,
-  WebpackConfig,
+  WebpackConfig
 } from './constants-types-paths';
+import { getProcessEnvPlugin } from './get-process-env-plugin';
 
 export function setupUnoptimizedConvenientDevConfig(
   config: WebpackConfig,
@@ -28,31 +29,11 @@ function setDevNodeEnvAndReadableWebpackNames(
     // to have better reproducibility
     plugins: [
       ...(config.plugins || []),
-      getProcessEnvSetter([{ key: 'NODE_ENV', value: 'development' }]),
+      getProcessEnvPlugin([{ key: 'NODE_ENV', value: 'development' }]),
+      new NamedChunksPlugin(),
+      new NamedModulesPlugin(),
     ],
   };
-}
-
-function getProcessEnvSetter(
-  keyValuePairs: { key: string; value: string }[],
-): DefinePlugin {
-  const initialValue = {};
-  const definePluginKeyValues = keyValuePairs.reduce((accumulator, pair) => {
-    return {
-      ...accumulator,
-      /**
-         * We specify the full key here so it doesn't overwrite all of process.env.
-         * It also makes it composable with other DefinePlugins used in other functions
-
-         * We use JSON.stringify here as it is the recommended way because
-         * the value has to be "'string'" so that the value that is replaced in
-         * source is a true javascript string (otherwise it would just insert a variable
-         * named string)
-         */
-      [`process.env.${pair.key}`]: JSON.stringify(pair.value),
-    };
-  }, initialValue);
-  return new DefinePlugin(definePluginKeyValues);
 }
 
 function setDevSourceMaps(config: WebpackConfig): WebpackConfig {

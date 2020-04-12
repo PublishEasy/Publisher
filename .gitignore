@@ -3,6 +3,7 @@
 
 # testing
 /coverage
+/end-to-end-screenshots
 
 # build files
 /dist

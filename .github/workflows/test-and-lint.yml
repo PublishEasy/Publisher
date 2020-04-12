@@ -26,6 +26,9 @@ jobs:
       - name: Run tests
         run: ./scripts/test-quick.sh
 
+      - name: Run End To End Tests
+        run: ./scripts/test-end-to-end.sh
+
       - name: Check that our custom eslint rules are up to date with source
         run: ./scripts/custom-eslint-rules-are-up-to-date.sh
 
