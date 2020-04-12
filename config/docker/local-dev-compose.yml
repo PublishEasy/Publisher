@@ -7,7 +7,7 @@ x-define-images-and-volumes: &define_images_and_volumes
   image: publisher-base
   volumes:
     - type: bind
-      source: ../../../src
+      source: ../../src
       target: /app/src
       read_only: true
       consistency: consistent
@@ -17,8 +17,9 @@ services:
     # Name the image we build here so we can reuse it
     image: publisher-base
     build:
-      context: ../../../
-      dockerfile: ./config/docker/local-dev/Dockerfile
+      context: ../../
+      dockerfile: ./config/docker/Dockerfile
+      target: local-dev
 
   front_end_development_server:
     <<: *define_images_and_volumes
@@ -39,4 +40,4 @@ services:
       - 8080:8080
     environment:
       PORT: 8080
-    command: ./node_modules/.bin/ts-node-dev --transpile-only src/server/index.ts
+    command: ./node_modules/.bin/ts-node-dev -r tsconfig-paths/register --transpile-only src/server/index.ts

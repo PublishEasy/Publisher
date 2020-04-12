@@ -1,26 +1,45 @@
 # Node 12 is the latest LTS version
 # Alpine is just a small base image which is nice to have
-FROM node:12-alpine AS builder
+
+#### This is the image we will use to run random commands inside in local dev and CI
+FROM node:12-alpine AS local-dev
 
 WORKDIR /app
+
+RUN apk add --no-cache --upgrade bash
+RUN apk add --no-cache --upgrade git
 
 COPY ["package.json", "yarn.lock", "./"]
 
 RUN yarn --frozen-lockfile
 
+COPY scripts scripts
+COPY config config
 COPY src src
+COPY [".browserslistrc", "tsconfig.json", "./"]
+
+#### Here we build the code preparing it to be run in production
+FROM node:12-alpine AS production-builder
+
+WORKDIR /app
+
+COPY --from=local-dev /app/node_modules node_modules
+
+COPY src/server src/server
+COPY src/common src/common
 COPY config/webpack config/webpack
 COPY tsconfig.json tsconfig.json
 
 RUN ./node_modules/.bin/webpack --config config/webpack/server-production-config.ts
 
+COPY src/client src/client
 COPY .browserslistrc .browserslistrc
 COPY public public
 
 RUN ./node_modules/.bin/webpack --config config/webpack/web-client-production-config.ts
 
-# Build production dependencies
-FROM node:12-alpine AS dependency-builder
+#### Build production dependencies
+FROM node:12-alpine AS production-dependency-builder
 
 WORKDIR /app
 
@@ -29,7 +48,7 @@ COPY ["package.json", "yarn.lock", "./"]
 RUN yarn --frozen-lockfile --prod
 
 
-# Build final lean production image
+#### Build final lean production image
 FROM alpine:3.11
 
 WORKDIR /app
@@ -51,6 +70,6 @@ RUN addgroup -g 1000 node \
       && tar -xJf "node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
       && ln -s /usr/local/bin/node /usr/local/bin/nodejs;
 
-COPY --from=dependency-builder /app/node_modules node_modules
-COPY --from=builder /app/dist dist
-COPY --from=builder /app/public public
+COPY --from=production-dependency-builder /app/node_modules node_modules
+COPY --from=production-builder /app/dist dist
+COPY --from=production-builder /app/public public

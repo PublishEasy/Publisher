@@ -1,5 +1,6 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'path';
+import nodeExternals from 'webpack-node-externals';
 
 import {
   absoluteFromRoot,
@@ -62,7 +63,9 @@ export function addWebClientCore(config: WebpackConfig): WebpackConfig {
 }
 
 export function addServerCore(config: WebpackConfig): WebpackConfig {
-  return setupServerTranspilation(setupServerFileResolving(config));
+  return excludeNodeModulesFromBundle(
+    setupServerTranspilation(setupServerFileResolving(config)),
+  );
 
   function setupServerFileResolving(config: WebpackConfig): WebpackConfig {
     return {
@@ -98,6 +101,12 @@ export function addServerCore(config: WebpackConfig): WebpackConfig {
         bugfixes: true,
       }),
     );
+  }
+  function excludeNodeModulesFromBundle(config: WebpackConfig): WebpackConfig {
+    return {
+      ...config,
+      externals: [nodeExternals()],
+    };
   }
 }
 

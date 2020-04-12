@@ -37,18 +37,22 @@ run_command_in_docker () {
     docker run --rm publisher-base "$@"
 }
 
-run_docker_compose_command () {
-    docker-compose -f config/docker/local-dev/docker-compose.yml "$@"
+run_local_dev_docker_compose_command () {
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f config/docker/local-dev-compose.yml "$@"
+}
+
+run_production_docker_compose_command () {
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f config/docker/production-compose.yml "$@"
 }
 
 build_docker_image () {
-    docker build -t publisher-base -f config/docker/local-dev/Dockerfile ./
+    DOCKER_BUILDKIT=1 docker build -t publisher-base -f config/docker/Dockerfile --target local-dev ./
 }
 # endregion
 
 ## SHELL BOILERPLATE STOPS HERE. FEEL FREE TO EDIT ANYTHING BELOW THIS COMMENT
 
 # Remove any previously stopped containers
-run_docker_compose_command rm --force --stop
+run_local_dev_docker_compose_command rm --force --stop
 
-run_docker_compose_command up --build
+run_local_dev_docker_compose_command up --build

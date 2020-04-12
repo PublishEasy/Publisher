@@ -37,27 +37,30 @@ run_command_in_docker () {
     docker run --rm publisher-base "$@"
 }
 
-run_docker_compose_command () {
-    docker-compose -f config/docker/local-dev/docker-compose.yml "$@"
+run_local_dev_docker_compose_command () {
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f config/docker/local-dev-compose.yml "$@"
+}
+
+run_production_docker_compose_command () {
+    COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f config/docker/production-compose.yml "$@"
 }
 
 build_docker_image () {
-    docker build -t publisher-base -f config/docker/local-dev/Dockerfile ./
+    DOCKER_BUILDKIT=1 docker build -t publisher-base -f config/docker/Dockerfile --target local-dev ./
 }
 # endregion
 
 ## SHELL BOILERPLATE STOPS HERE. FEEL FREE TO EDIT ANYTHING BELOW THIS COMMENT
 
-PROD_COMPOSE_FILE=config/docker/production/docker-compose.yml
 E2E_tests_docker_path=/e2e-tests
 
 mkdir -p end-to-end-screenshots
 
 teardown() {
-    docker-compose -f $PROD_COMPOSE_FILE down
+    run_production_docker_compose_command down
 }
 
-docker-compose -f $PROD_COMPOSE_FILE up --build --detach
+run_production_docker_compose_command up --build --detach
 
 (docker run \
     --mount "type=bind,source=$(pwd)/src/__tests__/end-to-end,target=$E2E_tests_docker_path" \
