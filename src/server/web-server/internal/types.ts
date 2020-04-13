@@ -1,11 +1,11 @@
 import type { NodeHTTPServer } from './dependencies';
 export { NodeHTTPServer };
 
-type Route = { pathPattern: string; routeHandler: RouteHandler };
+export type Route = { pathPattern: string; routeHandler: RouteHandler };
 
 export interface WebServer {
-  addRouter(pathPrefix: string, router: Router): WebServer;
-  serveStaticFilesFrom(pathToStaticDirectory: string): WebServer;
+  addRouter(pathPrefix: string, router: Router): this;
+  serveStaticFilesFrom(pathToStaticDirectory: string): this;
   __addRouterSpec(pathPrefix: string, spec: RouterSpec): void;
   exposeToInternetOnPort(
     port: number,
@@ -14,14 +14,16 @@ export interface WebServer {
 }
 
 export interface Router {
-  addMiddleware(...middleware: Middleware[]): Router;
-  addGETRoute(routePattern: string, routeHandler: RouteHandler): Router;
+  addMiddleware(...middleware: Middleware[]): this;
+  addGETRoute(routePattern: string, routeHandler: RouteHandler): this;
+  addGETWildcard(routeHandler: RouteHandler): this;
   addToServer(server: WebServer, pathPrefix: string): void;
 }
 
 export type RouterSpec = {
   middleware: Middleware[];
   routesByMethod: {
+    getWildcard?: RouteHandler;
     get: Route[];
   };
 };
@@ -40,6 +42,8 @@ export interface Request {
 
 export interface Response {
   send: (message: string) => void;
-  sendFile: (filePath: string) => void;
+  status: (statusCode: number) => this;
   sendStatus: (status: number) => void;
+  sendFile: (filePath: string) => void;
+  redirect: (statusCode: number, url: string) => void;
 }

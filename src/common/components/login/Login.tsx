@@ -1,8 +1,11 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 
-import { EmailInput, Form, PasswordInput } from 'src/client/form';
-import { AuthProvider, useAuth } from 'src/client/global-state/auth-store';
+import { EmailInput, Form, PasswordInput } from 'src/common/components/form';
+import {
+  AuthProvider,
+  useAuth,
+} from 'src/common/components/global-state/auth-store';
 import { ROUTES } from 'src/common/routes';
 
 export const Login: React.FunctionComponent = () => {

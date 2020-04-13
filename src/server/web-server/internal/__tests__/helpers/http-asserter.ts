@@ -15,13 +15,37 @@ export class HTTPAsserter {
     return this;
   }
 
-  expect(statusCode: number, doneCallback?: jest.DoneCallback): HTTPAsserter {
+  expectStatusCode(
+    statusCode: number,
+    doneCallback?: jest.DoneCallback,
+  ): HTTPAsserter {
+    const asserter = this.getReadyAsserter();
+    this.asserter = asserter.expect(statusCode);
+    this.handleDoneCallback(doneCallback);
+    return this;
+  }
+
+  expectResponse(
+    response: string,
+    doneCallback?: jest.DoneCallback,
+  ): HTTPAsserter {
+    const asserter = this.getReadyAsserter();
+    this.asserter = asserter.expect(response);
+    this.handleDoneCallback(doneCallback);
+    return this;
+  }
+
+  private handleDoneCallback(doneCallback?: jest.DoneCallback): void {
+    const asserter = this.getReadyAsserter();
+    if (doneCallback) this.asserter = asserter.end(doneCallback);
+  }
+
+  private getReadyAsserter(): supertest.Test {
     if (!this.asserter)
       throw new Error(
         'Asserter not initialized before expect call, remember to make a request through a method first',
       );
-    this.asserter = this.asserter.expect(statusCode, doneCallback);
-    return this;
+    return this.asserter;
   }
 
   customExpect(

@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Login } from 'src/client/login/Login';
-import { ReactTester } from 'src/client/test-utilities/react-tester';
+import { Login } from 'src/common/components/login/Login';
+import { ReactTester } from 'src/common/components/test-utilities/react-tester';
 import { ROUTES } from 'src/common/routes';
 
 const INITIAL_PATH = ROUTES.login;

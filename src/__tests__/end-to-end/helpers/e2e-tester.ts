@@ -13,7 +13,7 @@ export class E2ETester {
     this.initialPageUrl = initialPageUrl;
   }
 
-  assertStatusCode(statusCode: number): E2ETester {
+  assertStatusCode(statusCode: number): this {
     const { initialPageUrl } = this;
     test.requestHooks(logger)(
       `Renders with status code ${statusCode}`,
@@ -37,14 +37,14 @@ export class E2ETester {
     return this;
   }
 
-  containsText(text: string): E2ETester {
+  containsText(text: string): this {
     test(`Page contains text '${text}'`, async (t) => {
       await t.expect(Selector('#root').textContent).contains(text);
     });
     return this;
   }
 
-  containsCssSelectorMatch(selector: string): E2ETester {
+  containsCssSelectorMatch(selector: string): this {
     test(`Page contains node matching selector '${selector}'`, async (t) => {
       await t.expect(Selector(selector).exists).ok();
     });

@@ -5,7 +5,7 @@
     "skipLibCheck": true,
     "alwaysStrict": true,
     "assumeChangesOnlyAffectDirectDependencies": true,
-    "importsNotUsedAsValues": "error",
+    "importsNotUsedAsValues": "remove",
     "sourceMap": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,

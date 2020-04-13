@@ -59,13 +59,13 @@ export class ReactTester extends Tester {
     }
   }
 
-  assertRenders(): ReactTester {
+  assertRenders(): this {
     if (this.renderError !== null) this.throwError(this.renderError);
     expect(this.testingLibraryQueries).not.toBe(null);
     return this;
   }
 
-  assertHasFieldLabelled(label: string): ReactTester {
+  assertHasFieldLabelled(label: string): this {
     const queries = this.getQueries();
     try {
       queries.getByLabelText(label);
@@ -75,7 +75,7 @@ export class ReactTester extends Tester {
     return this;
   }
 
-  assertHasButtonNamed(name: string): ReactTester {
+  assertHasButtonNamed(name: string): this {
     const queries = this.getQueries();
     try {
       queries.getByRole('button', { name });
@@ -99,7 +99,7 @@ export class ReactTester extends Tester {
     return new HTMLElementTester(field);
   }
 
-  clickButtonNamed(name: string): ReactTester {
+  clickButtonNamed(name: string): this {
     this.assertHasButtonNamed(name);
     const queries = this.getQueries();
     const button = queries.getByRole('button', { name });
@@ -107,7 +107,7 @@ export class ReactTester extends Tester {
     return this;
   }
 
-  assertURLPathIs(path: string): ReactTester {
+  assertURLPathIs(path: string): this {
     if (this.asyncAssert) {
       waitFor(() => expect(this.currentUrlPath).toBe(path));
     } else {
@@ -116,7 +116,7 @@ export class ReactTester extends Tester {
     return this;
   }
 
-  get async(): ReactTester {
+  get async(): this {
     this.asyncAssert = true;
     return this;
   }
@@ -139,19 +139,19 @@ class HTMLElementTester extends Tester {
     this.element = element;
   }
 
-  type(text: string): HTMLElementTester {
+  type(text: string): this {
     userEvent.type(this.element, text);
     return this;
   }
 
-  assertIsFunctioningField(): HTMLElementTester {
+  assertIsFunctioningField(): this {
     expect(this.element).toHaveValue('');
     userEvent.type(this.element, 'abc');
     expect(this.element).toHaveValue('abc');
     return this;
   }
 
-  assertIsPasswordField(): HTMLElementTester {
+  assertIsPasswordField(): this {
     /**
      * The HTML semantics of input and password type are important here
      * because it means browsers can treat them right by hiding the input
