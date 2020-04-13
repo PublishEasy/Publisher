@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link, Route, Switch } from 'react-router-dom';
 
 import { Login } from 'src/common/components/login/Login';
+import { Link, Route, Switch } from 'src/common/components/routing';
 
 export const App: React.FC = () => {
   return (
