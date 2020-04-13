@@ -24,11 +24,7 @@ export function addWebClientCore(config: WebpackConfig): WebpackConfig {
         filename: 'main.js',
         path: PUBLIC_FILES_DIRECTORY,
       },
-      resolve: {
-        ...config.resolve,
-        extensions: ['.ts', '.tsx', '.js'],
-        modules: ['node_modules', absoluteFromRoot('.')],
-      },
+      resolve: getResolveSettings(config),
     };
   }
 
@@ -83,11 +79,7 @@ export function addServerCore(config: WebpackConfig): WebpackConfig {
         filename: 'server.js',
         path: DIST_DIRECTORY,
       },
-      resolve: {
-        ...config.resolve,
-        extensions: ['.ts', '.tsx', '.js'],
-        modules: ['node_modules', absoluteFromRoot('.')],
-      },
+      resolve: getResolveSettings(config),
     };
   }
   function setupServerTranspilation(config: WebpackConfig): WebpackConfig {
@@ -108,6 +100,14 @@ export function addServerCore(config: WebpackConfig): WebpackConfig {
       externals: [nodeExternals()],
     };
   }
+}
+
+function getResolveSettings(config: WebpackConfig): WebpackConfig['resolve'] {
+  return {
+    ...config.resolve,
+    extensions: ['.ts', '.tsx', '.js'],
+    modules: ['node_modules', absoluteFromRoot('.')],
+  };
 }
 
 function addWebpackLoader(config: WebpackConfig, newRule: {}): WebpackConfig {

@@ -1,3 +1,6 @@
+const path = require('path');
+const ROOT_DIRECTORY = path.resolve(__dirname, '..', '..');
+
 const extraEnabledRules = {
   'import/no-default-export': 'error',
   'import/no-anonymous-default-export': 'error',
@@ -14,9 +17,13 @@ const extraEnabledRules = {
   'import/no-restricted-paths': [
     'error',
     {
+      basePath: ROOT_DIRECTORY,
       zones: [
-        { target: 'src/server', from: 'src/client' },
-        { target: 'src/client', from: 'src/client' },
+        // Target specifies the files we are restricting imports within, From specifies the files we are restricting importing
+        { target: './src/server', from: './src/client' },
+        { target: './src/client', from: './src/server' },
+        { target: './src/common', from: './src/client' },
+        { target: './src/common', from: './src/server' },
       ],
     },
   ],
@@ -66,6 +73,12 @@ module.exports = {
   plugins: ['@typescript-eslint', 'import', 'react', 'jsx-a11y', 'react-hooks'],
   settings: {
     'import/extensions': ['ts', 'tsx'],
+    'import/resolver': {
+      node: {
+        extensions: ['.ts', '.tsx'],
+        moduleDirectory: ['node_modules', ROOT_DIRECTORY],
+      },
+    },
     react: {
       version: 'detect',
     },
