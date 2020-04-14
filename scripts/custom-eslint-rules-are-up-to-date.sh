@@ -56,8 +56,15 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-test -z "$(git diff-index --name-only HEAD --)" || (
+git_has_no_changes() {
+    # This seems to update the git cache tree or something like that, we experienced some false negatives without this
+    git status &> /dev/null
+    test -z "$(git diff-index --name-only HEAD --)"
+}
+
+git_has_no_changes || (
     echo -e "${RED}Working tree should be clean before running this command${NC}" &&
+    git status &&
     exit 1
 )
 
@@ -65,10 +72,9 @@ test -z "$(git diff-index --name-only HEAD --)" || (
 echo -e "${GREEN}Files built. Just running prettier to normalize diff${NC}"
 run_command_in_docker_with_write_access ./scripts/pre-configured-commands/prettier.sh --write &> /dev/null
 
-# This seems to update the tree making this work somehow. It's magic but it works where before it would give a false negative finding diffs when none existed
-git status &> /dev/null
-test -z "$(git diff-index --name-only HEAD --)" || (
+git_has_no_changes || (
     echo -e "${RED}It seems you forgot to build the eslint rules after changing them. They are up to date now though the changes are unstaged in git${NC}" &&
+    git status &&
     exit 1
 )
 echo -e "${GREEN}Our custom eslint rules are up to date with source${NC}"
