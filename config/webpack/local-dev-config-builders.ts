@@ -141,7 +141,7 @@ function isBabelLoader(rule: RuleSetRule): boolean {
 
 function constructBabelLoaderWithHotReloading(rule: RuleSetRule): RuleSetRule {
   if (typeof rule.options === 'object') {
-    const originalPlugins = rule.options?.plugins || [];
+    const originalPlugins = (rule.options?.plugins || []) as string[];
     const ruleWithHotReloading = {
       ...rule,
       options: {

@@ -54,8 +54,9 @@ export class ReactTester extends Tester {
         </MemoryRouter>,
       );
     } catch (e) {
+      const error = e instanceof Error ? e : new Error(e);
       this.testingLibraryQueries = null;
-      this.renderError = e;
+      this.renderError = error;
     }
   }
 
@@ -80,7 +81,8 @@ export class ReactTester extends Tester {
     try {
       queries.getByRole('button', { name });
     } catch (e) {
-      const testingLibraryError: string = e.message;
+      const error = e instanceof Error ? e : new Error(e);
+      const testingLibraryError: string = error.message;
       const buttons = testingLibraryError.match(
         /^\s+-+$\n\s+button:[\s\S]+^\s+-+$/gm,
       );

@@ -6,7 +6,7 @@ import {
   setWildcardRouteThroughNormalMethod,
 } from './helpers/serverBuilders';
 
-import type { NodeHTTPServer, Middleware } from '../types';
+import type { NodeHTTPServer, Middleware, Response } from '../types';
 
 describe('ProductionWebServer/ConcreteRouter', () => {
   describe('exposing port', () => {
@@ -158,7 +158,7 @@ describe('ProductionWebServer/ConcreteRouter', () => {
       values.push(2);
       next();
     };
-    const routeHandler = jest.fn((req, res) => {
+    const routeHandler = jest.fn((_, res: Response) => {
       res.sendStatus(200);
     });
     const server = getServerWithWildcardGETandMiddleware(

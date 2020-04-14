@@ -1,7 +1,7 @@
 const path = require('path');
 const ROOT_DIRECTORY = path.resolve(__dirname, '..', '..');
 
-const extraEnabledRules = {
+const javascriptCompatibleEnabledRules = {
   'import/no-default-export': 'error',
   'import/no-anonymous-default-export': 'error',
   'import/no-unassigned-import': 'error',
@@ -46,13 +46,22 @@ const disabledRules = {
   'react/prop-types': 'off',
 };
 const javascriptCompatibleRules = {
-  ...extraEnabledRules,
+  ...javascriptCompatibleEnabledRules,
   ...disabledRules,
   ...ourCustomEnabledRules,
 };
 
+const typescriptSpecificEnabledRules = {
+  '@typescript-eslint/prefer-reduce-type-parameter': 'error',
+  '@typescript-eslint/prefer-ts-expect-error': 'error',
+  '@typescript-eslint/no-unsafe-member-access': 'error',
+  '@typescript-eslint/no-unsafe-return': 'error',
+  '@typescript-eslint/no-unsafe-call': 'error',
+  '@typescript-eslint/no-unsafe-assignment': 'error',
+};
 const allRules = {
   ...javascriptCompatibleRules,
+  ...typescriptSpecificEnabledRules,
 };
 
 const javascriptCompatibleConfigs = [
