@@ -13,3 +13,4 @@ export {
   static as getExpressStaticMiddleware,
 } from 'express';
 export { Server as NodeHTTPServer } from 'http';
+export { Path } from 'src/server/filesystem';

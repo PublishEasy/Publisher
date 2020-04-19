@@ -4,7 +4,7 @@
     "module": "CommonJS",
     "skipLibCheck": true,
     "alwaysStrict": true,
-    "assumeChangesOnlyAffectDirectDependencies": true,
+    // "assumeChangesOnlyAffectDirectDependencies": true,
     "importsNotUsedAsValues": "remove",
     "sourceMap": true,
     "esModuleInterop": true,

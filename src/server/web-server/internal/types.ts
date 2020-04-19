@@ -1,11 +1,11 @@
-import type { NodeHTTPServer } from './dependencies';
+import type { NodeHTTPServer, Path } from './dependencies';
 export { NodeHTTPServer };
 
 export type Route = { pathPattern: string; routeHandler: RouteHandler };
 
 export interface WebServer {
   addRouter(pathPrefix: string, router: Router): this;
-  serveStaticFilesFrom(pathToStaticDirectory: string): this;
+  serveStaticFilesFrom(pathToStaticDirectory: Path): this;
   __addRouterSpec(pathPrefix: string, spec: RouterSpec): void;
   exposeToInternetOnPort(
     port: number,
@@ -34,7 +34,10 @@ export type Middleware = (
   callNextMiddleware: () => void,
 ) => void;
 
-export type RouteHandler = (req: Request, res: Response) => void;
+type SyncRouteHandler = (req: Request, res: Response) => void;
+type AsyncRouteHandler = (req: Request, res: Response) => Promise<void>;
+
+export type RouteHandler = SyncRouteHandler | AsyncRouteHandler;
 
 export interface Request {
   requestUrl: string;

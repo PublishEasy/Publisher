@@ -1,59 +1,30 @@
-import fs from 'fs';
-import path from 'path';
-
-import { ROOT_DIRECTORY } from 'src/server/paths';
-import { renderApp, RenderResult } from 'src/server/render-app-to-string';
 import {
   ConcreteRouter,
-  Middleware,
+  File,
+  Path,
+  renderApp,
+  RenderResult,
   Request,
   Response,
-  Router,
-} from 'src/server/web-server';
-
-type RouterGetter = (...middleware: Middleware[]) => Router;
-
-export const getAuthenticationServerRouter: RouterGetter = (...middleware) => {
-  return getRouterSpec(middleware, new AuthenticationRoutingStrategy());
-};
+} from './dependencies';
+import { getRouterSpec } from './get-router-spec';
+import { RouterGetter, RoutingStrategy } from './types';
 
 export const getCMSWebServerRouter: RouterGetter = (...middleware) => {
   return getRouterSpec(middleware, new CMSWebServerRoutingStrategy());
 };
 
-function getRouterSpec(
-  middleware: Middleware[],
-  routingStrategy: RoutingStrategy,
-): Router {
-  const router = new ConcreteRouter();
-  router.addMiddleware(...middleware);
-  routingStrategy.applyRoutes(router);
-  return router;
-}
-
-interface RoutingStrategy {
-  applyRoutes(router: ConcreteRouter): void;
-}
-
-class AuthenticationRoutingStrategy implements RoutingStrategy {
-  applyRoutes(router: ConcreteRouter): void {
-    router.addGETRoute('/', (_req, res) => res.send('Authentication'));
-  }
-}
-
 class CMSWebServerRoutingStrategy implements RoutingStrategy {
   applyRoutes(router: ConcreteRouter): void {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     router.addGETWildcard(serversideRenderApp);
-
     async function serversideRenderApp(
       req: Request,
       res: Response,
     ): Promise<void> {
-      const htmlTemplate = await fs.promises.readFile(
-        path.join(ROOT_DIRECTORY, 'public/index.html'),
-        'utf8',
-      );
+      const indexPath = Path.projectPaths.rootDirectory
+        .getChild('public')
+        .getChild('index.html');
+      const htmlTemplate = await new File(indexPath).getContents();
       const renderResult = renderApp(req.requestUrl);
       const fullHtml = htmlTemplate.replace(
         '<div id="root"></div>',
