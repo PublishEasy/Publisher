@@ -34,7 +34,7 @@
     "@types/react": "*",
     "@types/react-dom": "*",
     "@types/react-router-dom": "^5.1.5",
-    "@types/supertest": "^2.0.8",
+    "@types/supertest": "^2.0.9",
     "@types/webpack-dev-server": "^3.10.1",
     "@types/webpack-node-externals": "^1.7.1",
     "@typescript-eslint/eslint-plugin": "*",
