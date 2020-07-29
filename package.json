@@ -22,7 +22,7 @@
     "@babel/preset-typescript": "^7.10.4",
     "@hot-loader/react-dom": "^16.12.0",
     "@testing-library/dom": "^7.21.5",
-    "@testing-library/jest-dom": "^5.11.1",
+    "@testing-library/jest-dom": "^5.11.2",
     "@testing-library/react": "*",
     "@testing-library/user-event": "*",
     "@types/eslint": "*",
