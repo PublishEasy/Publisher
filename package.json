@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "express": "^5.0.0-alpha.8",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
     "react": "*",
     "react-dom": "*",
     "react-router-dom": "^5.2.0"
