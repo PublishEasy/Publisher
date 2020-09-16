@@ -51,7 +51,7 @@
     "html-webpack-plugin": "^4.4.1",
     "husky": "^4.3.0",
     "jest": "^26.4.2",
-    "prettier": "^2.1.1",
+    "prettier": "^2.1.2",
     "react-hot-loader": "^4.12.21",
     "supertest": "^4.0.2",
     "testcafe": "^1.9.2",
