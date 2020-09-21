@@ -54,7 +54,7 @@
     "prettier": "^2.1.2",
     "react-hot-loader": "^4.12.21",
     "supertest": "^4.0.2",
-    "testcafe": "^1.9.2",
+    "testcafe": "^1.9.3",
     "ts-jest": "^26.4.0",
     "ts-node": "^9.0.0",
     "ts-node-dev": "^1.0.0-pre.62",
