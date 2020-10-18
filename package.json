@@ -57,7 +57,7 @@
     "testcafe": "^1.9.4",
     "ts-jest": "^26.4.1",
     "ts-node": "^9.0.0",
-    "ts-node-dev": "^1.0.0-pre.65",
+    "ts-node-dev": "^1.0.0",
     "tsconfig-paths": "^3.9.0",
     "typescript": "*",
     "webpack": "^4.44.2",
