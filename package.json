@@ -35,7 +35,7 @@
     "@types/react-dom": "*",
     "@types/react-router-dom": "^5.1.6",
     "@types/supertest": "^2.0.10",
-    "@types/webpack-dev-server": "^3.11.0",
+    "@types/webpack-dev-server": "^3.11.1",
     "@types/webpack-node-externals": "^2.5.0",
     "@typescript-eslint/eslint-plugin": "*",
     "@typescript-eslint/experimental-utils": "^4.6.0",
