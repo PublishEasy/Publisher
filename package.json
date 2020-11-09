@@ -41,7 +41,7 @@
     "@typescript-eslint/experimental-utils": "^4.6.1",
     "@typescript-eslint/parser": "*",
     "babel-loader": "^8.1.0",
-    "core-js": "^3.6.5",
+    "core-js": "^3.7.0",
     "eslint": "*",
     "eslint-import-resolver-node": "^0.3.4",
     "eslint-plugin-import": "^2.22.1",
