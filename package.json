@@ -21,7 +21,7 @@
     "@babel/preset-react": "^7.12.5",
     "@babel/preset-typescript": "^7.12.1",
     "@hot-loader/react-dom": "^16.14.0",
-    "@testing-library/dom": "^7.28.0",
+    "@testing-library/dom": "^7.28.1",
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "*",
     "@testing-library/user-event": "*",
