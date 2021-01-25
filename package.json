@@ -53,7 +53,7 @@
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
     "react-hot-loader": "^4.13.0",
-    "supertest": "^6.1.1",
+    "supertest": "^6.1.2",
     "testcafe": "^1.10.1",
     "ts-jest": "^26.4.4",
     "ts-node": "^9.1.1",
