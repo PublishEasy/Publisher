@@ -38,7 +38,7 @@
     "@types/webpack-dev-server": "^3.11.1",
     "@types/webpack-node-externals": "^2.5.0",
     "@typescript-eslint/eslint-plugin": "*",
-    "@typescript-eslint/experimental-utils": "^4.15.2",
+    "@typescript-eslint/experimental-utils": "^4.16.1",
     "@typescript-eslint/parser": "*",
     "babel-loader": "^8.2.2",
     "core-js": "^3.9.0",
